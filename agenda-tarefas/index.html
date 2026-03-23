@@ -4,6 +4,9 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <style>
 
 body{margin:0;font-family:Arial;background:#f4f4f4;}
@@ -189,6 +192,31 @@ cursor:grab;
 
 <script>
 
+<script>
+
+// 🔥 FIREBASE (COLE AQUI EM CIMA DE TUDO)
+const firebaseConfig = {
+  apiKey: "AIzaSyCJTroKr2Oax-MJWPqGRfWaKjeK5RMweeM",
+  authDomain: "agenda-tarefas-bauru.firebaseapp.com",
+  projectId: "agenda-tarefas-bauru",
+  storageBucket: "agenda-tarefas-bauru.firebasestorage.app",
+  messagingSenderId: "1074586433161",
+  appId: "1:1074586433161:web:2280bb16dbc54b8432f858"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// 🧪 TESTE
+db.collection("tasks").add({
+  text: "🔥 Teste agenda online funcionando",
+  day: "2026-03-23",
+  done: false
+})
+.then(() => console.log("SALVOU NO FIREBASE"))
+.catch((error) => console.error("ERRO:", error));
+
+
 // 🔒 MOTOR DE DATAS PROFISSIONAL
 
 function toDateLocal(dateString){
@@ -220,12 +248,12 @@ return nomes[date.getDay()]
 const equipe=[
 {nome:"Luiza",funcao:"OP"},
 {nome:"Lauryne",funcao:"OP"},
+{nome:"Ana Laura",funcao:"OP"},
 {nome:"Augusta",funcao:"ASS"},
 {nome:"Alexandra",funcao:"ASS"},
 {nome:"Ana Julia",funcao:"ASS"},
 {nome:"Bruna",funcao:"ASS"},
 {nome:"Caroline Vitória",funcao:"ASS"},
-{nome:"Erica",funcao:"ASS"},
 {nome:"Nohamy",funcao:"ASS"},
 {nome:"Karina",funcao:"ASS"},
 {nome:"Liliane",funcao:"ASS"},
@@ -553,4 +581,3 @@ render()
 
 </body>
 </html>
-
