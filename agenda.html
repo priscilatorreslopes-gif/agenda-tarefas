@@ -1,0 +1,556 @@
+<head>
+<meta charset="UTF-8">
+<title>Agenda Operacional - Me.linda</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+
+body{margin:0;font-family:Arial;background:#f4f4f4;}
+
+header{
+background:linear-gradient(90deg,#7a00a8,#ff1f7a);
+color:white;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px 20px;
+}
+
+.logoArea{display:flex;align-items:center;gap:15px;}
+.logoArea img{height:60px;}
+
+.frase img{height:110px;opacity:0.85;}
+
+.topbar{
+background:white;
+padding:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:1px solid #ddd;
+flex-wrap:wrap;
+gap:8px;
+}
+
+.controlsLeft,.controlsRight{
+display:flex;
+gap:8px;
+align-items:center;
+flex-wrap:wrap;
+}
+
+button{
+background:#7a00a8;
+color:white;
+border:none;
+padding:6px 12px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.calendar{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:10px;
+padding:10px;
+}
+
+.day{
+background:white;
+border-radius:10px;
+padding:8px;
+display:flex;
+flex-direction:column;
+min-height:500px;
+box-shadow:0 1px 4px rgba(0,0,0,0.1);
+}
+
+.domingo{background:#f3e8ff;}
+.feriado{background:#ffe6ea;}
+.aniversarioDia{background:#fff4d6;}
+
+.feriadoNome{font-size:10px;color:#c0392b;}
+
+.dayHeader{font-weight:bold;}
+.counter{font-size:11px;color:#777;margin-bottom:6px;}
+
+.turno{margin-bottom:8px;font-size:12px;}
+
+.turnoHeader{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.turnoHeader button{
+background:#eee;
+color:#333;
+padding:2px 6px;
+border-radius:4px;
+}
+
+.tagPessoa{
+padding:4px 6px;
+border-radius:4px;
+margin:2px 0;
+font-size:11px;
+color:white;
+display:flex;
+justify-content:space-between;
+}
+
+.op{background:#8e44ad;}
+.ass{background:#27ae60;}
+.lid{background:#f39c12;}
+
+.birthdayTag{
+background:#ffeaa7;
+padding:4px 6px;
+border-radius:6px;
+font-size:12px;
+margin-bottom:4px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.vacationTag{
+padding:3px 6px;
+border-radius:4px;
+color:white;
+font-size:11px;
+margin-bottom:3px;
+display:flex;
+justify-content:space-between;
+}
+
+.tasks{flex:1;}
+
+.task{
+padding:6px;
+border-radius:6px;
+margin-bottom:5px;
+display:flex;
+justify-content:space-between;
+font-size:13px;
+cursor:grab;
+}
+
+.taskButtons{display:flex;gap:3px;}
+
+.done{text-decoration:line-through;opacity:0.6;}
+
+.c1{background:#fff2a6}
+.c2{background:#d6f5d6}
+.c3{background:#d6e6ff}
+.c4{background:#efd6ff}
+.c5{background:#ffd6e7}
+.c6{background:#ffe2c7}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+<div class="logoArea">
+<img src="logo-melinda.png">
+<h2>Agenda Operacional</h2>
+</div>
+<div class="frase">
+<img src="frase.png">
+</div>
+</header>
+
+<div class="topbar">
+
+<div class="controlsLeft">
+<button onclick="prevWeek()">⬅</button>
+<button onclick="goToday()">Hoje</button>
+<button onclick="nextWeek()">➡</button>
+<div id="month"></div>
+<input type="date" id="gotoDate">
+<button onclick="goToDate()">Ir</button>
+</div>
+
+<div class="controlsRight">
+<input type="date" id="taskDate">
+<button onclick="addTask()">+ Tarefa</button>
+<button onclick="addVacation()">Férias</button>
+<button onclick="addBirthday()">🎂</button>
+<button onclick="exportWhats()">📲</button>
+</div>
+
+</div>
+
+<div id="calendar" class="calendar"></div>
+
+<script>
+
+// 🔒 MOTOR DE DATAS PROFISSIONAL
+
+function toDateLocal(dateString){
+let [y,m,d] = dateString.split("-")
+return new Date(Number(y), Number(m)-1, Number(d))
+}
+
+function toStringDate(date){
+let y = date.getFullYear()
+let m = String(date.getMonth()+1).padStart(2,'0')
+let d = String(date.getDate()).padStart(2,'0')
+return `${y}-${m}-${d}`
+}
+
+function hoje(){
+let d = new Date()
+return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+}
+
+const days=["Seg","Ter","Qua","Qui","Sex","Sab","Dom"]
+
+function getDiaSemana(date){
+
+const nomes = ["Dom","Seg","Ter","Qua","Qui","Sex","Sab"]
+
+return nomes[date.getDay()]
+
+}
+const equipe=[
+{nome:"Luiza",funcao:"OP"},
+{nome:"Lauryne",funcao:"OP"},
+{nome:"Augusta",funcao:"ASS"},
+{nome:"Alexandra",funcao:"ASS"},
+{nome:"Ana Julia",funcao:"ASS"},
+{nome:"Bruna",funcao:"ASS"},
+{nome:"Caroline Vitória",funcao:"ASS"},
+{nome:"Erica",funcao:"ASS"},
+{nome:"Nohamy",funcao:"ASS"},
+{nome:"Karina",funcao:"ASS"},
+{nome:"Liliane",funcao:"ASS"},
+{nome:"Neimar",funcao:"ASS"},
+{nome:"Rayana",funcao:"ASS"},
+{nome:"Raemily",funcao:"LID"}
+]
+
+let tasks=JSON.parse(localStorage.getItem("tasks")||"[]")
+let escala=JSON.parse(localStorage.getItem("escala")||"{}")
+let vacations=JSON.parse(localStorage.getItem("vacations")||"[]")
+let birthdays=JSON.parse(localStorage.getItem("birthdays")||"[]")
+
+const vacationColors=["#f1c40f","#2ecc71","#3498db","#9b59b6","#e67e22"]
+
+let currentDate = hoje()
+
+/* FERIADOS */
+
+function getFeriados(ano){
+
+function pascoa(Y){
+let a=Y%19,b=Math.floor(Y/100),c=Y%100,d=Math.floor(b/4),e=b%4
+let f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3)
+let h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4
+let l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451)
+let mes=Math.floor((h+l-7*m+114)/31)
+let dia=((h+l-7*m+114)%31)+1
+return new Date(Y,mes-1,dia)
+}
+
+function f(d){return toStringDate(d)}
+
+let p=pascoa(ano)
+let sexta=new Date(p);sexta.setDate(p.getDate()-2)
+let corpus=new Date(p);corpus.setDate(p.getDate()+60)
+
+return{
+[ano+"-01-01"]:"Confraternização",
+[ano+"-04-21"]:"Tiradentes",
+[ano+"-05-01"]:"Trabalho",
+[ano+"-09-07"]:"Independência",
+[ano+"-10-12"]:"Aparecida",
+[ano+"-11-02"]:"Finados",
+[ano+"-11-15"]:"República",
+[ano+"-12-25"]:"Natal",
+[ano+"-08-01"]:"Bauru",
+[f(sexta)]:"Sexta Santa",
+[f(p)]:"Páscoa",
+[f(corpus)]:"Corpus Christi"
+}
+
+}
+
+/* RENDER */
+
+function render(){
+
+let calendar=document.getElementById("calendar")
+calendar.innerHTML=""
+
+document.getElementById("month").innerText=
+currentDate.toLocaleString("pt-BR",{month:"long",year:"numeric"})
+
+let start=new Date(currentDate)
+let day=start.getDay()
+let diff=start.getDate()-day+(day===0?-6:1)
+start.setDate(diff)
+
+days.forEach((d,i)=>{
+
+let dayDate=new Date(start)
+dayDate.setDate(start.getDate()+i)
+
+let dateString = toStringDate(dayDate)
+
+let feriados=getFeriados(dayDate.getFullYear())
+let nomeFeriado=feriados[dateString]
+
+let div=document.createElement("div")
+div.className="day"
+
+let diaMes=String(dayDate.getDate()).padStart(2,'0')+"/"+String(dayDate.getMonth()+1).padStart(2,'0')
+
+let aniversariantes=birthdays.filter(b=>b.data===diaMes)
+
+if(dayDate.getDay()===0) div.classList.add("domingo")
+if(nomeFeriado) div.classList.add("feriado")
+if(aniversariantes.length>0) div.classList.add("aniversarioDia")
+
+let dayTasks=tasks.filter(t=>t.day==dateString)
+let done=dayTasks.filter(t=>t.done).length
+
+div.innerHTML=`
+<div class="dayHeader">${getDiaSemana(dayDate)} ${dayDate.getDate()}</div>
+${nomeFeriado?`<div class="feriadoNome">${nomeFeriado}</div>`:""}
+<div class="counter">${done}/${dayTasks.length} tarefas</div>
+`
+
+/* ESCALA */
+
+div.innerHTML+=["abertura","intermediario","fechamento"].map(t=>`
+<div class="turno">
+<div class="turnoHeader">
+<b>${t}</b>
+<button onclick="addPessoa('${dateString}','${t}')">➕</button>
+</div>
+<div id="${t}-${dateString}"></div>
+</div>
+`).join("")
+
+calendar.appendChild(div)
+renderEscala(dateString)
+
+/* ANIVERSÁRIO */
+
+aniversariantes.forEach(b=>{
+let el=document.createElement("div")
+el.className="birthdayTag"
+el.innerHTML=`🎂 ${b.nome}`
+div.appendChild(el)
+})
+
+/* FÉRIAS */
+
+vacations.filter(v=>{
+
+let current = toDateLocal(dateString)
+let start = toDateLocal(v.start)
+let end = toDateLocal(v.end)
+
+return current >= start && current <= end
+
+})
+.forEach(v=>{
+
+let el=document.createElement("div")
+el.className="vacationTag"
+el.style.background=v.color
+
+el.innerHTML=`
+<span>${v.name}</span>
+<div>
+<span class="editVac">✏️</span>
+<span class="delVac">✖</span>
+</div>
+`
+
+// 👇 AQUI ESTÁ O SEGREDO
+el.querySelector(".editVac").onclick = () => editVacation(v.id)
+el.querySelector(".delVac").onclick = () => deleteVacation(v.id)
+
+div.appendChild(el)
+
+})
+/* TAREFAS */
+
+let area=document.createElement("div")
+area.className="tasks"
+
+dayTasks.forEach(t=>{
+let el=document.createElement("div")
+el.className="task "+t.color+(t.done?" done":"")
+
+el.draggable=true
+el.ondragstart=e=>e.dataTransfer.setData("id",t.id)
+
+el.innerHTML=`
+<span>${t.done?"✔ ":""}${t.text}</span>
+<div class="taskButtons">
+<button onclick="toggleDone(${t.id})">✓</button>
+<button onclick="deleteTask(${t.id})">🗑</button>
+</div>
+`
+
+area.appendChild(el)
+})
+
+div.appendChild(area)
+
+})
+
+}
+
+/* FUNÇÕES */
+
+function addBirthday(){
+let lista=equipe.map((p,i)=>`${i+1}-${p.nome}`).join("\n")
+let i=parseInt(prompt(lista))-1
+if(!equipe[i])return
+let data=prompt("DD/MM")
+birthdays.push({nome:equipe[i].nome,data})
+localStorage.setItem("birthdays",JSON.stringify(birthdays))
+render()
+}
+
+function addTask(){
+let d=document.getElementById("taskDate").value
+let t=prompt("Tarefa")
+if(!d||!t)return
+tasks.push({id:Date.now(),text:t,day:d,color:"c"+(Math.random()*6|0+1),done:false})
+localStorage.setItem("tasks",JSON.stringify(tasks))
+render()
+}
+
+function toggleDone(id){let t=tasks.find(x=>x.id==id);t.done=!t.done;localStorage.setItem("tasks",JSON.stringify(tasks));render()}
+function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);localStorage.setItem("tasks",JSON.stringify(tasks));render()}
+function moveTask(id,day){let t=tasks.find(x=>x.id==id);t.day=day;localStorage.setItem("tasks",JSON.stringify(tasks));render()}
+
+function addPessoa(d,t){
+let lista=equipe.map((p,i)=>`${i+1}-${p.nome}`).join("\n")
+let i=parseInt(prompt(lista))-1
+if(!equipe[i])return
+if(!escala[d])escala[d]={}
+if(!escala[d][t])escala[d][t]=[]
+escala[d][t].push(equipe[i])
+localStorage.setItem("escala",JSON.stringify(escala))
+render()
+}
+
+function renderEscala(d){
+["abertura","intermediario","fechamento"].forEach(t=>{
+let c=document.getElementById(`${t}-${d}`)
+if(!c)return
+c.innerHTML=""
+;(escala[d]?.[t]||[]).forEach((p,index)=>{
+
+let el=document.createElement("div")
+el.className="tagPessoa "+p.funcao.toLowerCase()
+
+el.innerHTML=`
+<span>${p.nome} (${p.funcao})</span>
+<span style="cursor:pointer" onclick="removerPessoa('${d}','${t}',${index})">✖</span>
+`
+
+c.appendChild(el)
+
+})
+})
+}
+
+function addVacation(){
+let n=prompt("Nome")
+let s=prompt("DD/MM/AAAA")
+let e=prompt("DD/MM/AAAA")
+function cv(d){let p=d.split("/");return p[2]+"-"+p[1]+"-"+p[0]}
+vacations.push({id:Date.now(),name:n,start:cv(s),end:cv(e),color:vacationColors[Math.random()*5|0]})
+localStorage.setItem("vacations",JSON.stringify(vacations))
+render()
+}
+
+function exportWhats(){
+html2canvas(document.querySelector(".calendar")).then(c=>{
+let a=document.createElement("a")
+a.download="agenda.png"
+a.href=c.toDataURL()
+a.click()
+})
+}
+
+function prevWeek(){currentDate.setDate(currentDate.getDate()-7);render()}
+function nextWeek(){currentDate.setDate(currentDate.getDate()+7);render()}
+function goToday(){currentDate=new Date();render()}
+function goToDate(){let d=document.getElementById("gotoDate").value;if(d){currentDate=new Date(d);render()}}
+function editVacation(id){
+
+let v = vacations.find(x => String(x.id) === String(id))
+
+if(!v) return
+
+let name = prompt("Nome", v.name)
+let start = prompt("Início (DD/MM/AAAA)", formatBR(v.start))
+let end = prompt("Fim (DD/MM/AAAA)", formatBR(v.end))
+
+function convert(dateBR){
+let p = dateBR.split("/")
+return p[2]+"-"+p[1]+"-"+p[0]
+}
+
+v.name = name
+v.start = convert(start)
+v.end = convert(end)
+
+localStorage.setItem("vacations", JSON.stringify(vacations))
+render()
+
+}
+
+function deleteVacation(id){
+
+if(!confirm("Deseja excluir essa férias?")) return
+
+vacations = vacations.filter(v => String(v.id) !== String(id))
+
+localStorage.setItem("vacations", JSON.stringify(vacations))
+render()
+
+}
+
+function formatBR(date){
+
+let d = new Date(date)
+
+let day = String(d.getDate()).padStart(2,'0')
+let month = String(d.getMonth()+1).padStart(2,'0')
+let year = d.getFullYear()
+
+return day+"/"+month+"/"+year
+
+}
+function removerPessoa(data, turno, index){
+
+if(!escala[data] || !escala[data][turno]) return
+
+escala[data][turno].splice(index,1)
+
+localStorage.setItem("escala", JSON.stringify(escala))
+
+render()
+
+}
+render()
+
+</script>
+
+</body>
+</html>
+
