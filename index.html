@@ -691,7 +691,7 @@ if(!container) return
 container.innerHTML = ""
 
 escala
-  .filter(e => e.date === dateString && e.turno === turno)
+  escala.filter(e => toStringDate(new Date(e.date)) === dateString && e.turno === turno)
   .forEach(e => {
 
     let el = document.createElement("div")
