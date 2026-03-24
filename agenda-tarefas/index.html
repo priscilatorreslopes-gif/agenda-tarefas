@@ -317,7 +317,23 @@ db.collection("tasks").onSnapshot((snapshot) => {
   render()
 
 })
-let escala=JSON.parse(localStorage.getItem("escala")||"{}")
+let escala = []
+
+db.collection("escala").onSnapshot((snapshot) => {
+
+  escala = []
+
+  snapshot.forEach((doc) => {
+    escala.push({
+      id: doc.id,
+      ...doc.data()
+    })
+  })
+
+  render()
+
+})
+  
 let vacations = []
 
 db.collection("vacations").onSnapshot((snapshot) => {
@@ -665,25 +681,39 @@ db.collection("escala").add({
 
 }
 
-function renderEscala(d){
-["abertura","intermediario","fechamento"].forEach(t=>{
-let c=document.getElementById(`${t}-${d}`)
-if(!c)return
-c.innerHTML=""
-;(escala[d]?.[t]||[]).forEach((p,index)=>{
+function renderEscala(dateString){
 
-let el=document.createElement("div")
-el.className="tagPessoa "+p.funcao.toLowerCase()
+["abertura","intermediario","fechamento"].forEach(turno => {
 
-el.innerHTML=`
-<span>${p.nome} (${p.funcao})</span>
-<span style="cursor:pointer" onclick="removerPessoa('${d}','${t}',${index})">✖</span>
-`
+let container = document.getElementById(`${turno}-${dateString}`)
+if(!container) return
 
-c.appendChild(el)
+container.innerHTML = ""
+
+escala
+  .filter(e => e.date === dateString && e.turno === turno)
+  .forEach(e => {
+
+    let el = document.createElement("div")
+    el.className = "tagPessoa"
+
+    let span = document.createElement("span")
+    span.innerText = e.nome
+
+    let btn = document.createElement("span")
+    btn.innerText = " ✖"
+    btn.style.cursor = "pointer"
+    btn.onclick = () => deletePessoa(e.id)
+
+    el.appendChild(span)
+    el.appendChild(btn)
+
+    container.appendChild(el)
+
+  })
 
 })
-})
+
 }
 
 function addVacation(){
