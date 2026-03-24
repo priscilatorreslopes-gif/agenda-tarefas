@@ -205,16 +205,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 🧪 TESTE
-db.collection("tasks").add({
-  text: "🔥 Teste agenda online funcionando",
-  day: "2026-03-23",
-  done: false
-})
-.then(() => console.log("SALVOU NO FIREBASE"))
-.catch((error) => console.error("ERRO:", error));
-
-
 // 🔒 MOTOR DE DATAS PROFISSIONAL
 
 function toDateLocal(dateString){
