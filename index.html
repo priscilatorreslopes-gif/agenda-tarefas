@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <title>Agenda Operacional - Me.linda</title>
@@ -106,6 +108,10 @@ justify-content:space-between;
 .op{background:#8e44ad;}
 .ass{background:#27ae60;}
 .lid{background:#f39c12;}
+
+.abertura{background:#2980b9;}
+.intermediario{background:#8e44ad;}
+.fechamento{background:#c0392b;}
 
 .birthdayTag{
 background:#ffeaa7;
@@ -435,6 +441,8 @@ let nomeFeriado=feriados[dateString]
 
 let div=document.createElement("div")
 div.className="day"
+div.ondragover=e=>e.preventDefault()
+div.ondrop=e=>{e.preventDefault();moveTask(e.dataTransfer.getData("id"),dateString)}
 
 let diaMes=String(dayDate.getDate()).padStart(2,'0')+"/"+String(dayDate.getMonth()+1).padStart(2,'0')
 
@@ -606,6 +614,12 @@ equipe.forEach(p => {
   box.appendChild(btn)
 })
 
+let cancelBtn = document.createElement("button")
+cancelBtn.innerText = "Cancelar"
+cancelBtn.style.background = "#999"
+cancelBtn.onclick = () => document.body.removeChild(container)
+box.appendChild(cancelBtn)
+
 container.appendChild(box)
 document.body.appendChild(container)
 
@@ -621,7 +635,7 @@ if(!d || !t) return
 db.collection("tasks").add({
   text: t,
   day: d,
-  color: "c"+(Math.random()*6|0+1),
+  color: "c"+(Math.floor(Math.random()*6)+1),
   done: false
 })
 .then(() => {
@@ -657,7 +671,9 @@ if(!confirm("Deseja excluir essa tarefa?")) return
 db.collection("tasks").doc(String(id)).delete()
 
 }
-function moveTask(id,day){let t=tasks.find(x=>x.id==id);t.day=day;localStorage.setItem("tasks",JSON.stringify(tasks));render()}
+function moveTask(id,day){
+db.collection("tasks").doc(String(id)).update({ day: day })
+}
 
 function addPessoa(dateString, turno){
 
@@ -694,20 +710,12 @@ container.innerHTML = ""
 escala
   .filter(e => {
   if(!e.date) return false
-
-  let data = e.date
-
-  if(data.includes("-")){
-    let [ano, mes, dia] = data.split("-")
-    data = `${dia}/${mes}/${ano}`
-  }
-
-  return data === dateString && e.turno === turno
+  return e.date === dateString && e.turno === turno
 })
   .forEach(e => {
 
    let el = document.createElement("div")
-el.className = "tagPessoa"
+el.className = "tagPessoa " + turno
 
 el.innerHTML = `
 <span>${e.nome || "Sem nome"}</span>
@@ -788,8 +796,8 @@ a.click()
 
 function prevWeek(){currentDate.setDate(currentDate.getDate()-7);render()}
 function nextWeek(){currentDate.setDate(currentDate.getDate()+7);render()}
-function goToday(){currentDate=new Date();render()}
-function goToDate(){let d=document.getElementById("gotoDate").value;if(d){currentDate=new Date(d);render()}}
+function goToday(){currentDate=hoje();render()}
+function goToDate(){let d=document.getElementById("gotoDate").value;if(d){currentDate=toDateLocal(d);render()}}
 function editVacation(id){
 
 let v = vacations.find(x => String(x.id) === String(id))
@@ -800,17 +808,18 @@ let name = prompt("Nome", v.name)
 let start = prompt("Início (DD/MM/AAAA)", formatBR(v.start))
 let end = prompt("Fim (DD/MM/AAAA)", formatBR(v.end))
 
+if(!name || !start || !end) return
+
 function convert(dateBR){
 let p = dateBR.split("/")
 return p[2]+"-"+p[1]+"-"+p[0]
 }
 
-v.name = name
-v.start = convert(start)
-v.end = convert(end)
-
-localStorage.setItem("vacations", JSON.stringify(vacations))
-render()
+db.collection("vacations").doc(String(id)).update({
+  name: name,
+  start: convert(start),
+  end: convert(end)
+})
 
 }
 
@@ -818,10 +827,7 @@ function deleteVacation(id){
 
 if(!confirm("Deseja excluir essa férias?")) return
 
-vacations = vacations.filter(v => String(v.id) !== String(id))
-
-localStorage.setItem("vacations", JSON.stringify(vacations))
-render()
+db.collection("vacations").doc(String(id)).delete()
 
 }
   
@@ -834,7 +840,7 @@ db.collection("birthdays").doc(id).delete()
 }
 function formatBR(date){
 
-let d = new Date(date)
+let d = toDateLocal(date)
 
 let day = String(d.getDate()).padStart(2,'0')
 let month = String(d.getMonth()+1).padStart(2,'0')
@@ -848,3 +854,4 @@ return day+"/"+month+"/"+year
 
 </body>
 </html>
+
