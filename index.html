@@ -693,9 +693,9 @@ container.innerHTML = ""
 escala
   .filter(e => e.date === dateString && e.turno === turno)
   .forEach(e => {
-    
+
     let el = document.createElement("div")
-   el.className = "tagPessoa abertura"
+   el.className = "tagPessoa " + turno
 
     let span = document.createElement("span")
     span.innerText = e.nome || "Sem nome"
@@ -811,18 +811,6 @@ let year = d.getFullYear()
 
 return day+"/"+month+"/"+year
 
-}
-function removerPessoa(data, turno, index){
-
-if(!escala[data] || !escala[data][turno]) return
-
-escala[data][turno].splice(index,1)
-
-localStorage.setItem("escala", JSON.stringify(escala))
-
-render()
-
-}
 render()
 
 </script>
