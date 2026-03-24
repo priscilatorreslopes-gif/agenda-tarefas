@@ -658,7 +658,7 @@ db.collection("tasks").doc(String(id)).delete()
 }
 function moveTask(id,day){let t=tasks.find(x=>x.id==id);t.day=day;localStorage.setItem("tasks",JSON.stringify(tasks));render()}
 
-function addPessoa(data, turno){
+function addPessoa(dateString, turno){
 
 let lista = equipe.map((p,i)=>`${i+1}-${p.nome}`).join("\n")
 let i = parseInt(prompt(lista)) - 1
@@ -666,7 +666,7 @@ let i = parseInt(prompt(lista)) - 1
 if(!equipe[i]) return
 
 db.collection("escala").add({
-  date: data,
+  date: dateString,
   turno: turno,
   nome: equipe[i].nome
 })
@@ -691,7 +691,7 @@ if(!container) return
 container.innerHTML = ""
 
 escala
-  escala.filter(e => toStringDate(new Date(e.date)) === dateString && e.turno === turno)
+  escala.filter(e => e.date === dateString && e.turno === turno)
   .forEach(e => {
 
     let el = document.createElement("div")
