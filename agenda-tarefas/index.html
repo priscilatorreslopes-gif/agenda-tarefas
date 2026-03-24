@@ -250,7 +250,23 @@ const equipe=[
 {nome:"Raemily",funcao:"LID"}
 ]
 
-let tasks=JSON.parse(localStorage.getItem("tasks")||"[]")
+let tasks = []
+
+db.collection("tasks").onSnapshot((snapshot) => {
+
+  tasks = []
+
+  snapshot.forEach((doc) => {
+    let data = doc.data()
+    tasks.push({
+      id: doc.id,
+      ...data
+    })
+  })
+
+  render()
+
+})
 let escala=JSON.parse(localStorage.getItem("escala")||"{}")
 let vacations=JSON.parse(localStorage.getItem("vacations")||"[]")
 let birthdays=JSON.parse(localStorage.getItem("birthdays")||"[]")
