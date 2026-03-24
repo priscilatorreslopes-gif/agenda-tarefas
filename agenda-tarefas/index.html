@@ -151,6 +151,39 @@ cursor:grab;
 .c5{background:#ffd6e7}
 .c6{background:#ffe2c7}
 
+  .popupSelect{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+
+.popupBox{
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  max-height:80vh;
+  overflow:auto;
+}
+
+.popupBox button{
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#7a00a8;
+  color:white;
+  cursor:pointer;
+}
+  
 </style>
 
 </head>
@@ -488,27 +521,46 @@ div.appendChild(area)
 
 function addBirthday(){
 
-let lista = equipe.map((p,i)=>`${i+1}-${p.nome}`).join("\n")
-let i = parseInt(prompt(lista)) - 1
+let container = document.createElement("div")
+container.className = "popupSelect"
 
-if(!equipe[i]) return
+let box = document.createElement("div")
+box.className = "popupBox"
 
-let data = prompt("DD/MM")
+box.innerHTML = "<h3>Escolha a colaboradora</h3>"
 
-if(!data) return
+equipe.forEach(p => {
+  let btn = document.createElement("button")
+  btn.innerText = p.nome
 
-db.collection("birthdays").add({
-  nome: equipe[i].nome,
-  data: data
+  btn.onclick = () => {
+
+    document.body.removeChild(container)
+
+    let data = prompt("Digite a data (DD/MM)")
+
+    if(!data) return
+
+    db.collection("birthdays").add({
+      nome: p.nome,
+      data: data
+    })
+
+    .then(() => {
+      alert("Aniversário salvo 🎂")
+    })
+
+    .catch((error) => {
+      console.error("Erro:", error)
+    })
+
+  }
+
+  box.appendChild(btn)
 })
 
-.then(() => {
-  alert("Aniversário salvo 🎂")
-})
-
-.catch((error) => {
-  console.error("Erro:", error)
-})
+container.appendChild(box)
+document.body.appendChild(container)
 
 }
 
