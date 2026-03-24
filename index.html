@@ -268,7 +268,22 @@ db.collection("tasks").onSnapshot((snapshot) => {
 
 })
 let escala=JSON.parse(localStorage.getItem("escala")||"{}")
-let vacations=JSON.parse(localStorage.getItem("vacations")||"[]")
+let vacations = []
+
+db.collection("vacations").onSnapshot((snapshot) => {
+
+  vacations = []
+
+  snapshot.forEach((doc) => {
+    vacations.push({
+      id: doc.id,
+      ...doc.data()
+    })
+  })
+
+  render()
+
+})
 let birthdays=JSON.parse(localStorage.getItem("birthdays")||"[]")
 
 const vacationColors=["#f1c40f","#2ecc71","#3498db","#9b59b6","#e67e22"]
@@ -547,13 +562,33 @@ c.appendChild(el)
 }
 
 function addVacation(){
-let n=prompt("Nome")
-let s=prompt("DD/MM/AAAA")
-let e=prompt("DD/MM/AAAA")
-function cv(d){let p=d.split("/");return p[2]+"-"+p[1]+"-"+p[0]}
-vacations.push({id:Date.now(),name:n,start:cv(s),end:cv(e),color:vacationColors[Math.random()*5|0]})
-localStorage.setItem("vacations",JSON.stringify(vacations))
-render()
+
+let n = prompt("Nome")
+let s = prompt("DD/MM/AAAA")
+let e = prompt("DD/MM/AAAA")
+
+if(!n || !s || !e) return
+
+function convert(d){
+  let p = d.split("/")
+  return p[2]+"-"+p[1]+"-"+p[0]
+}
+
+db.collection("vacations").add({
+  name: n,
+  start: convert(s),
+  end: convert(e),
+  color: vacationColors[Math.random()*5|0]
+})
+
+.then(() => {
+  alert("Férias salva online ✈️")
+})
+
+.catch((error) => {
+  console.error("Erro:", error)
+})
+
 }
 
 function exportWhats(){
