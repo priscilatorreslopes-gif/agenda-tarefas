@@ -691,12 +691,9 @@ if(!container) return
 container.innerHTML = ""
 
 escala
-  escala.filter(e => {
-
-escala.filter(e => e.date === dateString && e.turno === turno)
-})
+  .filter(e => e.date === dateString && e.turno === turno)
   .forEach(e => {
-
+    
     let el = document.createElement("div")
    el.className = "tagPessoa abertura"
 
