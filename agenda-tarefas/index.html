@@ -284,7 +284,22 @@ db.collection("vacations").onSnapshot((snapshot) => {
   render()
 
 })
-let birthdays=JSON.parse(localStorage.getItem("birthdays")||"[]")
+let birthdays = []
+
+db.collection("birthdays").onSnapshot((snapshot) => {
+
+  birthdays = []
+
+  snapshot.forEach((doc) => {
+    birthdays.push({
+      id: doc.id,
+      ...doc.data()
+    })
+  })
+
+  render()
+
+})
 
 const vacationColors=["#f1c40f","#2ecc71","#3498db","#9b59b6","#e67e22"]
 
@@ -472,13 +487,29 @@ div.appendChild(area)
 /* FUNÇÕES */
 
 function addBirthday(){
-let lista=equipe.map((p,i)=>`${i+1}-${p.nome}`).join("\n")
-let i=parseInt(prompt(lista))-1
-if(!equipe[i])return
-let data=prompt("DD/MM")
-birthdays.push({nome:equipe[i].nome,data})
-localStorage.setItem("birthdays",JSON.stringify(birthdays))
-render()
+
+let lista = equipe.map((p,i)=>`${i+1}-${p.nome}`).join("\n")
+let i = parseInt(prompt(lista)) - 1
+
+if(!equipe[i]) return
+
+let data = prompt("DD/MM")
+
+if(!data) return
+
+db.collection("birthdays").add({
+  nome: equipe[i].nome,
+  data: data
+})
+
+.then(() => {
+  alert("Aniversário salvo 🎂")
+})
+
+.catch((error) => {
+  console.error("Erro:", error)
+})
+
 }
 
 function addTask(){
