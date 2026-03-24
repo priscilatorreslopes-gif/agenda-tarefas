@@ -184,6 +184,23 @@ cursor:grab;
   cursor:pointer;
 }
   
+.birthdayTag{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#ffe4a3;
+  padding:4px 8px;
+  border-radius:6px;
+  margin-top:4px;
+}
+
+.delBirthday{
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  font-size:14px;
+}  
+  
 </style>
 
 </head>
@@ -438,10 +455,23 @@ renderEscala(dateString)
 /* ANIVERSÁRIO */
 
 aniversariantes.forEach(b=>{
-let el=document.createElement("div")
-el.className="birthdayTag"
-el.innerHTML=`🎂 ${b.nome}`
+
+let el = document.createElement("div")
+el.className = "birthdayTag"
+
+let span = document.createElement("span")
+span.innerText = "🎂 " + b.nome
+
+let btn = document.createElement("button")
+btn.innerText = "✖"
+btn.className = "delBirthday"
+btn.onclick = () => deleteBirthday(b.id)
+
+el.appendChild(span)
+el.appendChild(btn)
+  
 div.appendChild(el)
+
 })
 
 /* FÉRIAS */
@@ -721,7 +751,14 @@ localStorage.setItem("vacations", JSON.stringify(vacations))
 render()
 
 }
+  
+function deleteBirthday(id){
 
+if(!confirm("Deseja excluir esse aniversário?")) return
+
+db.collection("birthdays").doc(id).delete()
+
+}
 function formatBR(date){
 
 let d = new Date(date)
