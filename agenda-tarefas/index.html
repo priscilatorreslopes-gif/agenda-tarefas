@@ -695,10 +695,10 @@ escala
   .forEach(e => {
 
     let el = document.createElement("div")
-    el.className = "tagPessoa"
+   el.className = "tagPessoa abertura"
 
     let span = document.createElement("span")
-    span.innerText = e.nome
+    span.innerText = e.nome || "Sem nome"
 
     let btn = document.createElement("span")
     btn.innerText = " ✖"
