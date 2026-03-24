@@ -439,12 +439,25 @@ render()
 }
 
 function addTask(){
-let d=document.getElementById("taskDate").value
-let t=prompt("Tarefa")
-if(!d||!t)return
-tasks.push({id:Date.now(),text:t,day:d,color:"c"+(Math.random()*6|0+1),done:false})
-localStorage.setItem("tasks",JSON.stringify(tasks))
-render()
+
+let d = document.getElementById("taskDate").value
+let t = prompt("Tarefa")
+
+if(!d || !t) return
+
+db.collection("tasks").add({
+  text: t,
+  day: d,
+  color: "c"+(Math.random()*6|0+1),
+  done: false
+})
+.then(() => {
+  alert("Tarefa salva online 🚀")
+})
+.catch((error) => {
+  console.error("Erro:", error)
+})
+
 }
 
 function toggleDone(id){let t=tasks.find(x=>x.id==id);t.done=!t.done;localStorage.setItem("tasks",JSON.stringify(tasks));render()}
