@@ -476,8 +476,30 @@ db.collection("tasks").add({
 
 }
 
-function toggleDone(id){let t=tasks.find(x=>x.id==id);t.done=!t.done;localStorage.setItem("tasks",JSON.stringify(tasks));render()}
-function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);localStorage.setItem("tasks",JSON.stringify(tasks));render()}
+function toggleDone(id){
+
+db.collection("tasks").doc(String(id)).get().then(doc => {
+
+  if(doc.exists){
+    let current = doc.data().done
+
+    db.collection("tasks").doc(String(id)).update({
+      done: !current
+    })
+  }
+
+})
+
+}
+
+
+function deleteTask(id){
+
+if(!confirm("Deseja excluir essa tarefa?")) return
+
+db.collection("tasks").doc(String(id)).delete()
+
+}
 function moveTask(id,day){let t=tasks.find(x=>x.id==id);t.day=day;localStorage.setItem("tasks",JSON.stringify(tasks));render()}
 
 function addPessoa(d,t){
