@@ -642,15 +642,27 @@ db.collection("tasks").doc(String(id)).delete()
 }
 function moveTask(id,day){let t=tasks.find(x=>x.id==id);t.day=day;localStorage.setItem("tasks",JSON.stringify(tasks));render()}
 
-function addPessoa(d,t){
-let lista=equipe.map((p,i)=>`${i+1}-${p.nome}`).join("\n")
-let i=parseInt(prompt(lista))-1
-if(!equipe[i])return
-if(!escala[d])escala[d]={}
-if(!escala[d][t])escala[d][t]=[]
-escala[d][t].push(equipe[i])
-localStorage.setItem("escala",JSON.stringify(escala))
-render()
+function addPessoa(data, turno){
+
+let lista = equipe.map((p,i)=>`${i+1}-${p.nome}`).join("\n")
+let i = parseInt(prompt(lista)) - 1
+
+if(!equipe[i]) return
+
+db.collection("escala").add({
+  date: data,
+  turno: turno,
+  nome: equipe[i].nome
+})
+
+.then(() => {
+  alert("Pessoa adicionada na escala 👥")
+})
+
+.catch((error) => {
+  console.error("Erro:", error)
+})
+
 }
 
 function renderEscala(d){
