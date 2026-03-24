@@ -428,8 +428,8 @@ el.ondragstart=e=>e.dataTransfer.setData("id",t.id)
 el.innerHTML=`
 <span>${t.done?"✔ ":""}${t.text}</span>
 <div class="taskButtons">
-<button onclick="toggleDone(${t.id})">✓</button>
-<button onclick="deleteTask(${t.id})">🗑</button>
+<button onclick="toggleDone('${t.id}')">✓</button>
+<button onclick="deleteTask('${t.id}')">🗑</button>
 </div>
 `
 
