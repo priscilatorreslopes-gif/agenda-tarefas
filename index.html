@@ -466,7 +466,6 @@ div.innerHTML+=["abertura","intermediario","fechamento"].map(t=>`
 `).join("")
 
 calendar.appendChild(div)
-renderEscala(dateString)
 
 /* ANIVERSÁRIO */
 
@@ -560,6 +559,8 @@ area.appendChild(el)
 div.appendChild(area)
 
 })
+
+renderEscalaGlobal()
 
 }
 
@@ -698,7 +699,7 @@ escala
    el.className = "tagPessoa"
 
     let span = document.createElement("span")
-    span.innerText = e.nome || "Sem nome"
+    span.innerText = JSON.stringify(e)
 
     let btn = document.createElement("span")
     btn.innerText = " ✖"
@@ -715,6 +716,26 @@ escala
     container.appendChild(el)
 
   })
+
+})
+
+}
+
+function renderEscalaGlobal(){
+
+let start=new Date(currentDate)
+let day=start.getDay()
+let diff=start.getDate()-day+(day===0?-6:1)
+start.setDate(diff)
+
+days.forEach((d,i)=>{
+
+let dayDate=new Date(start)
+dayDate.setDate(start.getDate()+i)
+
+let dateString = toStringDate(dayDate)
+
+renderEscala(dateString)
 
 })
 
