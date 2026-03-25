@@ -746,33 +746,67 @@ container.className = "popupSelect"
 let box = document.createElement("div")
 box.className = "popupBox"
 
-box.innerHTML = "<h3>Escolha a colaboradora</h3>"
+box.innerHTML = "<h3>Selecione as colaboradoras</h3>"
+
+let selecionadas = []
 
 equipe.forEach(p => {
 
-  let btn = document.createElement("button")
-  btn.innerText = p.nome
+  let label = document.createElement("label")
+  label.style.display = "flex"
+  label.style.alignItems = "center"
+  label.style.gap = "8px"
 
-  btn.onclick = () => {
+  let checkbox = document.createElement("input")
+  checkbox.type = "checkbox"
 
+  checkbox.onchange = () => {
+    if(checkbox.checked){
+      selecionadas.push(p.nome)
+    }else{
+      selecionadas = selecionadas.filter(n => n !== p.nome)
+    }
+  }
+
+  let span = document.createElement("span")
+  span.innerText = p.nome
+
+  label.appendChild(checkbox)
+  label.appendChild(span)
+
+  box.appendChild(label)
+
+})
+
+let btnSalvar = document.createElement("button")
+btnSalvar.innerText = "Salvar"
+
+btnSalvar.onclick = () => {
+
+  if(selecionadas.length === 0){
+    alert("Selecione pelo menos uma pessoa")
+    return
+  }
+
+  selecionadas.forEach(nome => {
     db.collection("escala").add({
       date: dateString,
       turno: turno,
-      nome: p.nome
+      nome: nome
     })
+  })
 
-    document.body.removeChild(container)
-  }
+  document.body.removeChild(container)
+}
 
-  box.appendChild(btn)
-
-})
+box.appendChild(btnSalvar)
 
 container.appendChild(box)
 document.body.appendChild(container)
 
 }
-function renderEscala(dateString){
+  
+  function renderEscala(dateString){
 
 ["abertura","intermediario","fechamento"].forEach(turno => {
 
