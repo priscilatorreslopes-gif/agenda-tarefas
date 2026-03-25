@@ -695,26 +695,21 @@ escala
   .filter(e => e.date === dateString && e.turno === turno)
   .forEach(e => {
 
-    let el = document.createElement("div")
-   el.className = "tagPessoa"
+   let el = document.createElement("div")
+el.className = "tagPessoa"
 
-    let span = document.createElement("span")
-    span.innerText = JSON.stringify(e)
+el.innerHTML = `
+<span>${e.nome || "Sem nome"}</span>
+<span style="cursor:pointer">✖</span>
+`
 
-    let btn = document.createElement("span")
-    btn.innerText = " ✖"
-    btn.style.cursor = "pointer"
-    btn.onclick = () => {
+el.querySelector("span:last-child").onclick = () => {
   if(confirm("Remover da escala?")){
     db.collection("escala").doc(e.id).delete()
   }
 }
 
-    el.appendChild(span)
-    el.appendChild(btn)
-
-    container.appendChild(el)
-
+container.appendChild(el)
   })
 
 })
