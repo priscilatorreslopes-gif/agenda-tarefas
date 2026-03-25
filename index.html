@@ -205,8 +205,33 @@ cursor:grab;
   background:transparent;
   cursor:pointer;
   font-size:14px;
-}  
-  
+}
+
+.checkboxItem{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.checkboxItem:hover{background:#f3e8ff;}
+
+.checkboxItem input{width:18px;height:18px;accent-color:#7a00a8;}
+
+.checkboxItem.already{opacity:0.5;cursor:default;}
+
+.roleLabel{
+  font-size:11px;
+  font-weight:bold;
+  color:#7a00a8;
+  margin-top:6px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
 </style>
 
 </head>
@@ -677,24 +702,99 @@ db.collection("tasks").doc(String(id)).update({ day: day })
 
 function addPessoa(dateString, turno){
 
-let lista = equipe.map((p,i)=>`${i+1}-${p.nome}`).join("\n")
-let i = parseInt(prompt(lista)) - 1
+let jaEscalados = escala
+  .filter(e => e.date === dateString && e.turno === turno)
+  .map(e => e.nome)
 
-if(!equipe[i]) return
+let container = document.createElement("div")
+container.className = "popupSelect"
 
-db.collection("escala").add({
-  date: dateString,
-  turno: turno,
-  nome: equipe[i].nome
+let box = document.createElement("div")
+box.className = "popupBox"
+
+let title = document.createElement("h3")
+title.textContent = turno + " — " + dateString.split("-").reverse().join("/")
+box.appendChild(title)
+
+let checkboxes = []
+
+let roles = {OP:"Operadoras", ASS:"Assistentes", LID:"Líderes"}
+
+Object.keys(roles).forEach(role => {
+
+  let membros = equipe.filter(p => p.funcao === role)
+  if(membros.length === 0) return
+
+  let label = document.createElement("div")
+  label.className = "roleLabel"
+  label.textContent = roles[role]
+  box.appendChild(label)
+
+  membros.forEach(p => {
+
+    let already = jaEscalados.includes(p.nome)
+
+    let item = document.createElement("label")
+    item.className = "checkboxItem" + (already ? " already" : "")
+
+    let cb = document.createElement("input")
+    cb.type = "checkbox"
+    cb.checked = already
+    cb.disabled = already
+    cb.value = p.nome
+
+    let span = document.createElement("span")
+    span.textContent = p.nome + (already ? " (já escalado)" : "")
+
+    item.appendChild(cb)
+    item.appendChild(span)
+    box.appendChild(item)
+
+    if(!already) checkboxes.push(cb)
+  })
+
 })
 
-.then(() => {
-  alert("Pessoa adicionada na escala 👥")
-})
+let btnConfirm = document.createElement("button")
+btnConfirm.textContent = "Confirmar"
+btnConfirm.onclick = () => {
 
-.catch((error) => {
-  console.error("Erro:", error)
-})
+  let selecionados = checkboxes.filter(cb => cb.checked)
+
+  if(selecionados.length === 0){
+    document.body.removeChild(container)
+    return
+  }
+
+  let promises = selecionados.map(cb =>
+    db.collection("escala").add({
+      date: dateString,
+      turno: turno,
+      nome: cb.value
+    })
+  )
+
+  Promise.all(promises)
+    .then(() => {
+      document.body.removeChild(container)
+    })
+    .catch(error => {
+      console.error("Erro:", error)
+      document.body.removeChild(container)
+    })
+
+}
+
+let btnCancel = document.createElement("button")
+btnCancel.textContent = "Cancelar"
+btnCancel.style.background = "#999"
+btnCancel.onclick = () => document.body.removeChild(container)
+
+box.appendChild(btnConfirm)
+box.appendChild(btnCancel)
+
+container.appendChild(box)
+document.body.appendChild(container)
 
 }
 
