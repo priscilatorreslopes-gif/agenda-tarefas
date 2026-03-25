@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <title>Agenda Operacional - Me.linda</title>
@@ -109,10 +107,6 @@ justify-content:space-between;
 .ass{background:#27ae60;}
 .lid{background:#f39c12;}
 
-.abertura{background:#2980b9;}
-.intermediario{background:#8e44ad;}
-.fechamento{background:#c0392b;}
-
 .birthdayTag{
 background:#ffeaa7;
 padding:4px 6px;
@@ -205,33 +199,8 @@ cursor:grab;
   background:transparent;
   cursor:pointer;
   font-size:14px;
-}
-
-.checkboxItem{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:6px 10px;
-  border-radius:6px;
-  cursor:pointer;
-  font-size:14px;
-}
-
-.checkboxItem:hover{background:#f3e8ff;}
-
-.checkboxItem input{width:18px;height:18px;accent-color:#7a00a8;}
-
-.checkboxItem.already{opacity:0.5;cursor:default;}
-
-.roleLabel{
-  font-size:11px;
-  font-weight:bold;
-  color:#7a00a8;
-  margin-top:6px;
-  text-transform:uppercase;
-  letter-spacing:1px;
-}
-
+}  
+  
 </style>
 
 </head>
@@ -466,8 +435,6 @@ let nomeFeriado=feriados[dateString]
 
 let div=document.createElement("div")
 div.className="day"
-div.ondragover=e=>e.preventDefault()
-div.ondrop=e=>{e.preventDefault();moveTask(e.dataTransfer.getData("id"),dateString)}
 
 let diaMes=String(dayDate.getDate()).padStart(2,'0')+"/"+String(dayDate.getMonth()+1).padStart(2,'0')
 
@@ -639,12 +606,6 @@ equipe.forEach(p => {
   box.appendChild(btn)
 })
 
-let cancelBtn = document.createElement("button")
-cancelBtn.innerText = "Cancelar"
-cancelBtn.style.background = "#999"
-cancelBtn.onclick = () => document.body.removeChild(container)
-box.appendChild(cancelBtn)
-
 container.appendChild(box)
 document.body.appendChild(container)
 
@@ -660,7 +621,7 @@ if(!d || !t) return
 db.collection("tasks").add({
   text: t,
   day: d,
-  color: "c"+(Math.floor(Math.random()*6)+1),
+  color: "c"+(Math.random()*6|0+1),
   done: false
 })
 .then(() => {
@@ -696,105 +657,28 @@ if(!confirm("Deseja excluir essa tarefa?")) return
 db.collection("tasks").doc(String(id)).delete()
 
 }
-function moveTask(id,day){
-db.collection("tasks").doc(String(id)).update({ day: day })
-}
+function moveTask(id,day){let t=tasks.find(x=>x.id==id);t.day=day;localStorage.setItem("tasks",JSON.stringify(tasks));render()}
 
 function addPessoa(dateString, turno){
 
-let jaEscalados = escala
-  .filter(e => e.date === dateString && e.turno === turno)
-  .map(e => e.nome)
+let lista = equipe.map((p,i)=>`${i+1}-${p.nome}`).join("\n")
+let i = parseInt(prompt(lista)) - 1
 
-let container = document.createElement("div")
-container.className = "popupSelect"
+if(!equipe[i]) return
 
-let box = document.createElement("div")
-box.className = "popupBox"
-
-let title = document.createElement("h3")
-title.textContent = turno + " — " + dateString.split("-").reverse().join("/")
-box.appendChild(title)
-
-let checkboxes = []
-
-let roles = {OP:"Operadoras", ASS:"Assistentes", LID:"Líderes"}
-
-Object.keys(roles).forEach(role => {
-
-  let membros = equipe.filter(p => p.funcao === role)
-  if(membros.length === 0) return
-
-  let label = document.createElement("div")
-  label.className = "roleLabel"
-  label.textContent = roles[role]
-  box.appendChild(label)
-
-  membros.forEach(p => {
-
-    let already = jaEscalados.includes(p.nome)
-
-    let item = document.createElement("label")
-    item.className = "checkboxItem" + (already ? " already" : "")
-
-    let cb = document.createElement("input")
-    cb.type = "checkbox"
-    cb.checked = already
-    cb.disabled = already
-    cb.value = p.nome
-
-    let span = document.createElement("span")
-    span.textContent = p.nome + (already ? " (já escalado)" : "")
-
-    item.appendChild(cb)
-    item.appendChild(span)
-    box.appendChild(item)
-
-    if(!already) checkboxes.push(cb)
-  })
-
+db.collection("escala").add({
+  date: dateString,
+  turno: turno,
+  nome: equipe[i].nome
 })
 
-let btnConfirm = document.createElement("button")
-btnConfirm.textContent = "Confirmar"
-btnConfirm.onclick = () => {
+.then(() => {
+  alert("Pessoa adicionada na escala 👥")
+})
 
-  let selecionados = checkboxes.filter(cb => cb.checked)
-
-  if(selecionados.length === 0){
-    document.body.removeChild(container)
-    return
-  }
-
-  let promises = selecionados.map(cb =>
-    db.collection("escala").add({
-      date: dateString,
-      turno: turno,
-      nome: cb.value
-    })
-  )
-
-  Promise.all(promises)
-    .then(() => {
-      document.body.removeChild(container)
-    })
-    .catch(error => {
-      console.error("Erro:", error)
-      document.body.removeChild(container)
-    })
-
-}
-
-let btnCancel = document.createElement("button")
-btnCancel.textContent = "Cancelar"
-btnCancel.style.background = "#999"
-btnCancel.onclick = () => document.body.removeChild(container)
-
-box.appendChild(btnConfirm)
-box.appendChild(btnCancel)
-
-container.appendChild(box)
-document.body.appendChild(container)
+.catch((error) => {
+  console.error("Erro:", error)
+})
 
 }
 
@@ -810,25 +694,24 @@ container.innerHTML = ""
 escala
   .filter(e => {
   if(!e.date) return false
-  return e.date === dateString && e.turno === turno
+
+  let data = e.date
+
+  if(data.includes("-")){
+    let [ano, mes, dia] = data.split("-")
+    data = `${dia}/${mes}/${ano}`
+  }
+
+  return data === dateString && e.turno === turno
 })
   .forEach(e => {
 
-   let el = document.createElement("div")
-el.className = "tagPessoa " + turno
-
-el.innerHTML = `
-<span>${e.nome || "Sem nome"}</span>
-<span style="cursor:pointer">✖</span>
+   container.innerHTML += `
+<div class="tagPessoa">
+  👤 ${e.nome}
+  <span onclick="deletePessoa('${e.id}')" style="cursor:pointer">✖</span>
+</div>
 `
-
-el.querySelector("span:last-child").onclick = () => {
-  if(confirm("Remover da escala?")){
-    db.collection("escala").doc(e.id).delete()
-  }
-}
-
-container.appendChild(el)
   })
 
 })
@@ -896,8 +779,8 @@ a.click()
 
 function prevWeek(){currentDate.setDate(currentDate.getDate()-7);render()}
 function nextWeek(){currentDate.setDate(currentDate.getDate()+7);render()}
-function goToday(){currentDate=hoje();render()}
-function goToDate(){let d=document.getElementById("gotoDate").value;if(d){currentDate=toDateLocal(d);render()}}
+function goToday(){currentDate=new Date();render()}
+function goToDate(){let d=document.getElementById("gotoDate").value;if(d){currentDate=new Date(d);render()}}
 function editVacation(id){
 
 let v = vacations.find(x => String(x.id) === String(id))
@@ -908,18 +791,17 @@ let name = prompt("Nome", v.name)
 let start = prompt("Início (DD/MM/AAAA)", formatBR(v.start))
 let end = prompt("Fim (DD/MM/AAAA)", formatBR(v.end))
 
-if(!name || !start || !end) return
-
 function convert(dateBR){
 let p = dateBR.split("/")
 return p[2]+"-"+p[1]+"-"+p[0]
 }
 
-db.collection("vacations").doc(String(id)).update({
-  name: name,
-  start: convert(start),
-  end: convert(end)
-})
+v.name = name
+v.start = convert(start)
+v.end = convert(end)
+
+localStorage.setItem("vacations", JSON.stringify(vacations))
+render()
 
 }
 
@@ -927,7 +809,10 @@ function deleteVacation(id){
 
 if(!confirm("Deseja excluir essa férias?")) return
 
-db.collection("vacations").doc(String(id)).delete()
+vacations = vacations.filter(v => String(v.id) !== String(id))
+
+localStorage.setItem("vacations", JSON.stringify(vacations))
+render()
 
 }
   
@@ -940,7 +825,7 @@ db.collection("birthdays").doc(id).delete()
 }
 function formatBR(date){
 
-let d = toDateLocal(date)
+let d = new Date(date)
 
 let day = String(d.getDate()).padStart(2,'0')
 let month = String(d.getMonth()+1).padStart(2,'0')
@@ -954,4 +839,3 @@ return day+"/"+month+"/"+year
 
 </body>
 </html>
-
