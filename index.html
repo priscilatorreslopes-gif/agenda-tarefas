@@ -671,6 +671,47 @@ db.collection("tasks").add({
 
 }
 
+  function saveTask(){
+
+let text = document.getElementById("taskText").value
+let start = document.getElementById("taskStart").value
+let end = document.getElementById("taskEnd").value
+
+if(!text || !start || !end) return
+
+if(start === end){
+
+  db.collection("tasks").add({
+    text: text,
+    day: start,
+    color: "c"+(Math.random()*6|0+1),
+    done: false
+  })
+
+}else{
+
+  let current = new Date(start)
+  let final = new Date(end)
+
+  while(current <= final){
+
+    let day = current.toISOString().split("T")[0]
+
+    db.collection("tasks").add({
+      text: text,
+      day: day,
+      color: "c"+(Math.random()*6|0+1),
+      done: false
+    })
+
+    current.setDate(current.getDate()+1)
+  }
+}
+
+closeTaskPopup()
+
+}
+  
 function toggleDone(id){
 
 db.collection("tasks").doc(String(id)).get().then(doc => {
@@ -699,27 +740,38 @@ function moveTask(id,day){let t=tasks.find(x=>x.id==id);t.day=day;localStorage.s
 
 function addPessoa(dateString, turno){
 
-let lista = equipe.map((p,i)=>`${i+1}-${p.nome}`).join("\n")
-let i = parseInt(prompt(lista)) - 1
+let container = document.createElement("div")
+container.className = "popupSelect"
 
-if(!equipe[i]) return
+let box = document.createElement("div")
+box.className = "popupBox"
 
-db.collection("escala").add({
-  date: dateString,
-  turno: turno,
-  nome: equipe[i].nome
+box.innerHTML = "<h3>Escolha a colaboradora</h3>"
+
+equipe.forEach(p => {
+
+  let btn = document.createElement("button")
+  btn.innerText = p.nome
+
+  btn.onclick = () => {
+
+    db.collection("escala").add({
+      date: dateString,
+      turno: turno,
+      nome: p.nome
+    })
+
+    document.body.removeChild(container)
+  }
+
+  box.appendChild(btn)
+
 })
 
-.then(() => {
-  alert("Pessoa adicionada na escala 👥")
-})
-
-.catch((error) => {
-  console.error("Erro:", error)
-})
+container.appendChild(box)
+document.body.appendChild(container)
 
 }
-
 function renderEscala(dateString){
 
 ["abertura","intermediario","fechamento"].forEach(turno => {
@@ -787,6 +839,7 @@ if(!n || !s || !e) return
 function convert(d){
   let p = d.split("/")
   return p[2]+"-"+p[1]+"-"+p[0]
+}
 
 db.collection("vacations").add({
   name: n,
