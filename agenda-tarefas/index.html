@@ -671,6 +671,47 @@ db.collection("tasks").add({
 
 }
 
+  function saveTask(){
+
+let text = document.getElementById("taskText").value
+let start = document.getElementById("taskStart").value
+let end = document.getElementById("taskEnd").value
+
+if(!text || !start || !end) return
+
+if(start === end){
+
+  db.collection("tasks").add({
+    text: text,
+    day: start,
+    color: "c"+(Math.random()*6|0+1),
+    done: false
+  })
+
+}else{
+
+  let current = new Date(start)
+  let final = new Date(end)
+
+  while(current <= final){
+
+    let day = current.toISOString().split("T")[0]
+
+    db.collection("tasks").add({
+      text: text,
+      day: day,
+      color: "c"+(Math.random()*6|0+1),
+      done: false
+    })
+
+    current.setDate(current.getDate()+1)
+  }
+}
+
+closeTaskPopup()
+
+}
+  
 function toggleDone(id){
 
 db.collection("tasks").doc(String(id)).get().then(doc => {
