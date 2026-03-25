@@ -816,12 +816,12 @@ if(!container) return
 container.innerHTML = ""
 
 escala
-  .filter(e => e.date === dateString && e.turno === turno)
+  .filter(e => e.date === dateString && e.turno === turno && e.nome)
   .forEach(e => {
 
    container.innerHTML += `
 <div class="tagPessoa">
-  👤 ${e.nome}
+  👤 ${e.nome || "Sem nome"}
   <span onclick="deletePessoa('${e.id}')" style="cursor:pointer">✖</span>
 </div>
 `
