@@ -703,7 +703,11 @@ escala
     let btn = document.createElement("span")
     btn.innerText = " ✖"
     btn.style.cursor = "pointer"
-    btn.onclick = () => deletePessoa(e.id)
+    btn.onclick = () => {
+  if(confirm("Remover da escala?")){
+    db.collection("escala").doc(e.id).delete()
+  }
+}
 
     el.appendChild(span)
     el.appendChild(btn)
@@ -811,7 +815,7 @@ let year = d.getFullYear()
 
 return day+"/"+month+"/"+year
 
-render()
+}
 
 </script>
 
