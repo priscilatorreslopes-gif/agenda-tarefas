@@ -819,12 +819,21 @@ escala
   .filter(e => e.date === dateString && e.turno === turno && e.nome)
   .forEach(e => {
 
-   container.innerHTML += `
-<div class="tagPessoa">
-  👤 ${e.nome || "Sem nome"}
-  <span onclick="deletePessoa('${e.id}')" style="cursor:pointer">✖</span>
-</div>
-`
+ let el = document.createElement("div")
+el.className = "tagPessoa"
+
+let spanNome = document.createElement("span")
+spanNome.innerText = "👤 " + e.nome
+
+let btn = document.createElement("span")
+btn.innerText = "✖"
+btn.style.cursor = "pointer"
+btn.onclick = () => deletePessoa(e.id)
+
+el.appendChild(spanNome)
+el.appendChild(btn)
+
+container.appendChild(el)
 
     })
     
