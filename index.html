@@ -200,7 +200,45 @@ cursor:grab;
   cursor:pointer;
   font-size:14px;
 }  
-  
+  /* POPUP TAREFA */
+
+.popup{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.4);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+
+.popupContent{
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  width:260px;
+}
+
+.popupContent input{
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+.popupContent button{
+  padding:10px;
+  border:none;
+  border-radius:6px;
+  background:#7a00a8;
+  color:white;
+  cursor:pointer;
+}
 </style>
 
 </head>
@@ -230,7 +268,7 @@ cursor:grab;
 
 <div class="controlsRight">
 <input type="date" id="taskDate">
-<button onclick="addTask()">+ Tarefa</button>
+<button onclick="openTaskPopup()">+ Tarefa</button>
 <button onclick="addVacation()">Férias</button>
 <button onclick="addBirthday()">🎂</button>
 <button onclick="exportWhats()">📲</button>
@@ -749,7 +787,6 @@ if(!n || !s || !e) return
 function convert(d){
   let p = d.split("/")
   return p[2]+"-"+p[1]+"-"+p[0]
-}
 
 db.collection("vacations").add({
   name: n,
@@ -768,6 +805,16 @@ db.collection("vacations").add({
 
 }
 
+  }
+  
+function openTaskPopup(){
+  document.getElementById("taskPopup").style.display = "flex"
+}
+
+function closeTaskPopup(){
+  document.getElementById("taskPopup").style.display = "none"
+}
+  
 function exportWhats(){
 html2canvas(document.querySelector(".calendar")).then(c=>{
 let a=document.createElement("a")
@@ -837,5 +884,24 @@ return day+"/"+month+"/"+year
 
 </script>
 
+  <div id="taskPopup" class="popup">
+  <div class="popupContent">
+
+    <h3>Nova Tarefa</h3>
+
+    <input id="taskText" placeholder="Nome da tarefa">
+
+    <label>Data início</label>
+    <input type="date" id="taskStart">
+
+    <label>Data fim</label>
+    <input type="date" id="taskEnd">
+
+    <button onclick="saveTask()">Salvar</button>
+    <button onclick="closeTaskPopup()">Cancelar</button>
+
+  </div>
+</div>
+  
 </body>
 </html>
