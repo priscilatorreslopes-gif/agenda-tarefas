@@ -706,21 +706,12 @@ escala
 })
   .forEach(e => {
 
-   let el = document.createElement("div")
-el.className = "tagPessoa"
-
-el.innerHTML = `
-<span>${e.nome || "Sem nome"}</span>
-<span style="cursor:pointer">✖</span>
+   container.innerHTML += `
+<div class="tagPessoa">
+  👤 ${e.nome}
+  <span onclick="deletePessoa('${e.id}')" style="cursor:pointer">✖</span>
+</div>
 `
-
-el.querySelector("span:last-child").onclick = () => {
-  if(confirm("Remover da escala?")){
-    db.collection("escala").doc(e.id).delete()
-  }
-}
-
-container.appendChild(el)
   })
 
 })
