@@ -692,7 +692,18 @@ if(!container) return
 container.innerHTML = ""
 
 escala
-  .filter(e => e.date === dateString && e.turno === turno)
+  .filter(e => {
+  if(!e.date) return false
+
+  let data = e.date
+
+  if(data.includes("-")){
+    let [ano, mes, dia] = data.split("-")
+    data = `${dia}/${mes}/${ano}`
+  }
+
+  return data === dateString && e.turno === turno
+})
   .forEach(e => {
 
    let el = document.createElement("div")
