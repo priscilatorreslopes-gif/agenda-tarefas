@@ -787,15 +787,7 @@ if(!n || !s || !e) return
 function convert(d){
   let p = d.split("/")
   return p[2]+"-"+p[1]+"-"+p[0]
-}
 
-  function openTaskPopup(){
-  document.getElementById("taskPopup").style.display = "flex"
-}
-
-function closeTaskPopup(){
-  document.getElementById("taskPopup").style.display = "none"
-}
 db.collection("vacations").add({
   name: n,
   start: convert(s),
@@ -813,6 +805,16 @@ db.collection("vacations").add({
 
 }
 
+  }
+  
+function openTaskPopup(){
+  document.getElementById("taskPopup").style.display = "flex"
+}
+
+function closeTaskPopup(){
+  document.getElementById("taskPopup").style.display = "none"
+}
+  
 function exportWhats(){
 html2canvas(document.querySelector(".calendar")).then(c=>{
 let a=document.createElement("a")
