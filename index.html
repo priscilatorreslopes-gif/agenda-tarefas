@@ -566,7 +566,13 @@ area.className="tasks"
 
 dayTasks.forEach(t=>{
 let el=document.createElement("div")
-el.className="task "+t.color+(t.done?" done":"")
+el.className = "task" + (t.done ? " done" : "")
+
+if(t.start && t.end){
+  el.style.background = getGradientColor(t.start, t.end, dateString)
+}else{
+  el.classList.add(t.color)
+}
 
 el.draggable=true
 el.ondragstart=e=>e.dataTransfer.setData("id",t.id)
@@ -671,7 +677,7 @@ db.collection("tasks").add({
 
 }
 
-  function saveTask(){
+ function saveTask(){
 
 let text = document.getElementById("taskText").value
 let start = document.getElementById("taskStart").value
@@ -679,38 +685,28 @@ let end = document.getElementById("taskEnd").value
 
 if(!text || !start || !end) return
 
-if(start === end){
+let current = new Date(start)
+let final = new Date(end)
+
+while(current <= final){
+
+  let day = current.toISOString().split("T")[0]
 
   db.collection("tasks").add({
     text: text,
-    day: start,
-    color: "c"+(Math.random()*6|0+1),
+    day: day,
+    start: start,
+    end: end,
     done: false
   })
 
-}else{
-
-  let current = new Date(start)
-  let final = new Date(end)
-
-  while(current <= final){
-
-    let day = current.toISOString().split("T")[0]
-
-    db.collection("tasks").add({
-      text: text,
-      day: day,
-      color: "c"+(Math.random()*6|0+1),
-      done: false
-    })
-
-    current.setDate(current.getDate()+1)
-  }
+  current.setDate(current.getDate()+1)
 }
 
 closeTaskPopup()
 
 }
+
   
 function toggleDone(id){
 
@@ -819,12 +815,21 @@ escala
   .filter(e => e.date === dateString && e.turno === turno && e.nome)
   .forEach(e => {
 
-   container.innerHTML += `
-<div class="tagPessoa">
-  👤 ${e.nome || "Sem nome"}
-  <span onclick="deletePessoa('${e.id}')" style="cursor:pointer">✖</span>
-</div>
-`
+ let el = document.createElement("div")
+el.className = "tagPessoa"
+
+let spanNome = document.createElement("span")
+spanNome.innerText = "👤 " + e.nome
+
+let btn = document.createElement("span")
+btn.innerText = "✖"
+btn.style.cursor = "pointer"
+btn.onclick = () => deletePessoa(e.id)
+
+el.appendChild(spanNome)
+el.appendChild(btn)
+
+container.appendChild(el)
 
     })
     
@@ -951,6 +956,31 @@ if(!confirm("Deseja excluir esse aniversário?")) return
 db.collection("birthdays").doc(id).delete()
 
 }
+
+function getGradientColor(start, end, current){
+
+  let s = new Date(start)
+  let e = new Date(end)
+  let c = new Date(current)
+
+  let total = (e - s) / (1000 * 60 * 60 * 24)
+  let atual = (c - s) / (1000 * 60 * 60 * 24)
+
+  if(total <= 0) return "#d6f5d6"
+
+  let progress = atual / total
+
+  // limitar entre 0 e 1
+  progress = Math.max(0, Math.min(1, progress))
+
+  // gradiente verde → amarelo → vermelho
+  let r = Math.floor(255 * progress)
+  let g = Math.floor(200 - (100 * progress))
+  let b = 150
+
+  return `rgb(${r},${g},${b})`
+}
+
 function formatBR(date){
 
 let d = new Date(date)
@@ -986,3 +1016,4 @@ return day+"/"+month+"/"+year
   
 </body>
 </html>
+
