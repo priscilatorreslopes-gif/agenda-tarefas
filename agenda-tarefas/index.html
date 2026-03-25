@@ -239,29 +239,6 @@ cursor:grab;
   color:white;
   cursor:pointer;
 }
-
-.taskBarStart{
-  border-radius: 8px 0 0 8px;
-}
-
-.taskBarMiddle{
-  border-radius: 0;
-}
-
-.taskBarEnd{
-  border-radius: 0 8px 8px 0;
-}
-
-.taskLate{
-  animation: piscar 1s infinite;
-}
-
-@keyframes piscar{
-  0%{opacity:1}
-  50%{opacity:0.4}
-  100%{opacity:1}
-}
-
 </style>
 
 </head>
@@ -589,37 +566,7 @@ area.className="tasks"
 
 dayTasks.forEach(t=>{
 let el=document.createElement("div")
-el.className = "task" + (t.done ? " done" : "")
-
-// GRADIENTE
-if(t.start && t.end){
-
-  el.style.background = getGradientColor(t.start, t.end, dateString)
-
-  let current = new Date(dateString)
-  let start = new Date(t.start)
-  let end = new Date(t.end)
-
-  // DEFINIR POSIÇÃO NA BARRA
-  if(dateString === t.start){
-    el.classList.add("taskBarStart")
-  }else if(dateString === t.end){
-    el.classList.add("taskBarEnd")
-  }else{
-    el.classList.add("taskBarMiddle")
-  }
-
-  // 🔴 ATRASO (HOJE > END)
-  let hojeData = new Date()
-  hojeData.setHours(0,0,0,0)
-
-  if(hojeData > end && !t.done){
-    el.classList.add("taskLate")
-  }
-
-}else{
-  el.classList.add(t.color)
-}
+el.className="task "+t.color+(t.done?" done":"")
 
 el.draggable=true
 el.ondragstart=e=>e.dataTransfer.setData("id",t.id)
@@ -709,17 +656,12 @@ let t = prompt("Tarefa")
 
 if(!d || !t) return
 
-let groupId = Date.now() + "_" + Math.random()
-
 db.collection("tasks").add({
-  text: text,
-  day: day,
-  start: start,
-  end: end,
-  groupId: groupId,
+  text: t,
+  day: d,
+  color: "c"+(Math.random()*6|0+1),
   done: false
 })
-
 .then(() => {
   alert("Tarefa salva online 🚀")
 })
@@ -1053,5 +995,4 @@ return day+"/"+month+"/"+year
   
 </body>
 </html>
-
 
