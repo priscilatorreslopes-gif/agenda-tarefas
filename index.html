@@ -802,7 +802,6 @@ escala
   <span onclick="deletePessoa('${e.id}')" style="cursor:pointer">✖</span>
 </div>
 `
-  })
 
 })
 
@@ -828,6 +827,12 @@ renderEscala(dateString)
 
 }
 
+function deletePessoa(id){  
+if(!confirm("Deseja remover essa pessoa da escala?")) return  
+
+db.collection("escala").doc(id).delete()  
+}
+  
 function addVacation(){
 
 let n = prompt("Nome")
