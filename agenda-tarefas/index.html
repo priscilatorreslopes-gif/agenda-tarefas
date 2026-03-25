@@ -787,6 +787,7 @@ if(!n || !s || !e) return
 function convert(d){
   let p = d.split("/")
   return p[2]+"-"+p[1]+"-"+p[0]
+}
 
 db.collection("vacations").add({
   name: n,
