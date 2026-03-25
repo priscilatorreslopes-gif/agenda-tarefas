@@ -239,6 +239,29 @@ cursor:grab;
   color:white;
   cursor:pointer;
 }
+
+.taskBarStart{
+  border-radius: 8px 0 0 8px;
+}
+
+.taskBarMiddle{
+  border-radius: 0;
+}
+
+.taskBarEnd{
+  border-radius: 0 8px 8px 0;
+}
+
+.taskLate{
+  animation: piscar 1s infinite;
+}
+
+@keyframes piscar{
+  0%{opacity:1}
+  50%{opacity:0.4}
+  100%{opacity:1}
+}
+
 </style>
 
 </head>
@@ -568,8 +591,32 @@ dayTasks.forEach(t=>{
 let el=document.createElement("div")
 el.className = "task" + (t.done ? " done" : "")
 
+// GRADIENTE
 if(t.start && t.end){
+
   el.style.background = getGradientColor(t.start, t.end, dateString)
+
+  let current = new Date(dateString)
+  let start = new Date(t.start)
+  let end = new Date(t.end)
+
+  // DEFINIR POSIÇÃO NA BARRA
+  if(dateString === t.start){
+    el.classList.add("taskBarStart")
+  }else if(dateString === t.end){
+    el.classList.add("taskBarEnd")
+  }else{
+    el.classList.add("taskBarMiddle")
+  }
+
+  // 🔴 ATRASO (HOJE > END)
+  let hojeData = new Date()
+  hojeData.setHours(0,0,0,0)
+
+  if(hojeData > end && !t.done){
+    el.classList.add("taskLate")
+  }
+
 }else{
   el.classList.add(t.color)
 }
@@ -662,12 +709,17 @@ let t = prompt("Tarefa")
 
 if(!d || !t) return
 
+let groupId = Date.now() + "_" + Math.random()
+
 db.collection("tasks").add({
-  text: t,
-  day: d,
-  color: "c"+(Math.random()*6|0+1),
+  text: text,
+  day: day,
+  start: start,
+  end: end,
+  groupId: groupId,
   done: false
 })
+
 .then(() => {
   alert("Tarefa salva online 🚀")
 })
@@ -677,7 +729,7 @@ db.collection("tasks").add({
 
 }
 
- function saveTask(){
+  function saveTask(){
 
 let text = document.getElementById("taskText").value
 let start = document.getElementById("taskStart").value
@@ -685,28 +737,38 @@ let end = document.getElementById("taskEnd").value
 
 if(!text || !start || !end) return
 
-let current = new Date(start)
-let final = new Date(end)
-
-while(current <= final){
-
-  let day = current.toISOString().split("T")[0]
+if(start === end){
 
   db.collection("tasks").add({
     text: text,
-    day: day,
-    start: start,
-    end: end,
+    day: start,
+    color: "c"+(Math.random()*6|0+1),
     done: false
   })
 
-  current.setDate(current.getDate()+1)
+}else{
+
+  let current = new Date(start)
+  let final = new Date(end)
+
+  while(current <= final){
+
+    let day = current.toISOString().split("T")[0]
+
+    db.collection("tasks").add({
+      text: text,
+      day: day,
+      color: "c"+(Math.random()*6|0+1),
+      done: false
+    })
+
+    current.setDate(current.getDate()+1)
+  }
 }
 
 closeTaskPopup()
 
 }
-
   
 function toggleDone(id){
 
@@ -956,31 +1018,6 @@ if(!confirm("Deseja excluir esse aniversário?")) return
 db.collection("birthdays").doc(id).delete()
 
 }
-
-function getGradientColor(start, end, current){
-
-  let s = new Date(start)
-  let e = new Date(end)
-  let c = new Date(current)
-
-  let total = (e - s) / (1000 * 60 * 60 * 24)
-  let atual = (c - s) / (1000 * 60 * 60 * 24)
-
-  if(total <= 0) return "#d6f5d6"
-
-  let progress = atual / total
-
-  // limitar entre 0 e 1
-  progress = Math.max(0, Math.min(1, progress))
-
-  // gradiente verde → amarelo → vermelho
-  let r = Math.floor(255 * progress)
-  let g = Math.floor(200 - (100 * progress))
-  let b = 150
-
-  return `rgb(${r},${g},${b})`
-}
-
 function formatBR(date){
 
 let d = new Date(date)
@@ -1016,4 +1053,5 @@ return day+"/"+month+"/"+year
   
 </body>
 </html>
+
 
