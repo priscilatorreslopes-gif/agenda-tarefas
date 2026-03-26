@@ -12,14 +12,32 @@
 body{margin:0;font-family:Arial;background:#f4f4f4;}
 
 header{
-background:linear-gradient(90deg,#a855f7,#ff6fa3);
+background: linear-gradient(90deg,#a855f7,#ff6fa3);
 color:white;
 display:flex;
 justify-content:space-between;
 align-items:center;
 padding:12px 20px;
+position:relative;
+overflow:hidden;
 }
 
+header::after{
+content:"";
+position:absolute;
+top:0;
+left:-50%;
+width:200%;
+height:100%;
+background:linear-gradient(
+  120deg,
+  rgba(255,255,255,0) 0%,
+  rgba(255,255,255,0.25) 50%,
+  rgba(255,255,255,0) 100%
+);
+transform:skewX(-20deg);
+}
+  
 .logoArea{display:flex;align-items:center;gap:15px;}
 .logoArea img{
 height:60px;
