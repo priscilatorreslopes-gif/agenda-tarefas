@@ -51,6 +51,13 @@ align-items:center;
 flex-wrap:wrap;
 }
 
+.actions{
+display:flex;
+gap:10px;
+align-items:center;
+flex-wrap:wrap;
+}
+  
 button{
 border:none;
 cursor:pointer;
@@ -755,7 +762,11 @@ if(start === end){
   }
 }
 
-    function saveEvent(){
+closeTaskPopup()
+
+}
+
+function saveEvent(){
 
 let name = document.getElementById("eventName").value
 let brand = document.getElementById("eventBrand").value
@@ -776,7 +787,7 @@ db.collection("events").add({
 })
 }
 
-    function saveTraining(){
+function saveTraining(){
 
 let name = document.getElementById("trainingName").value
 let brand = document.getElementById("trainingBrand").value
@@ -797,10 +808,6 @@ db.collection("trainings").add({
   alert("Treinamento salvo 🎓")
   closeTrainingPopup()
 })
-}
-
-closeTaskPopup()
-
 }
   
 function toggleDone(id){
