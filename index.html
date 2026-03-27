@@ -51,6 +51,32 @@ align-items:center;
 flex-wrap:wrap;
 }
 
+  .topbarTop{
+display:flex;
+justify-content:space-between;
+align-items:center;
+color:white;
+font-weight:bold;
+}
+
+.topbarTop button{
+background:transparent;
+color:white;
+font-weight:bold;
+}
+
+#month{
+color:white;
+font-weight:bold;
+}
+
+  .topbarBottom{
+display:flex;
+justify-content:center;
+gap:12px;
+flex-wrap:wrap;
+}
+  
 .actions{
 display:flex;
 gap:10px;
@@ -299,32 +325,32 @@ cursor:grab;
 
 <div class="topbar">
 
-<div class="controlsLeft">
-<button onclick="prevWeek()">⬅</button>
-<button onclick="goToday()">Hoje</button>
-<button onclick="nextWeek()">➡</button>
-<div id="month"></div>
-<input type="date" id="gotoDate">
-<button onclick="goToDate()">Ir</button>
+<!-- 🔝 LINHA DE CIMA -->
+<div class="topbarTop">
+
+  <div class="controlsLeft">
+    <button onclick="prevWeek()">⬅</button>
+    <button onclick="goToday()">HOJE</button>
+    <button onclick="nextWeek()">➡</button>
+    <div id="month"></div>
+  </div>
+
+  <div class="controlsRight">
+    <input type="date" id="gotoDate">
+    <button onclick="goToDate()">IR</button>
+  </div>
+
 </div>
 
-<div class="controlsRight">
+<!-- 🔽 LINHA DE BAIXO -->
+<div class="topbarBottom">
 
-<input type="date" id="taskDate">
-
-<div class="actions">
-
-<button onclick="openTaskPopup()" class="btnMain">📌 Tarefa</button>
-
-<button onclick="addVacation()" class="btnMain">🌴 Férias</button>
-
-<button onclick="addBirthday()" class="btnMain">🎂 Aniversário</button>
-
-<button onclick="openEventPopup()" class="btnMain">📅 Eventos</button>
-
-<button onclick="openTrainingPopup()" class="btnMain">🎓 Treinamento</button>
-
-<button onclick="exportWhats()" class="btnMain">📲 Exportar</button> 
+  <button onclick="openTaskPopup()" class="btnMain">📌 Tarefa</button>
+  <button onclick="addVacation()" class="btnMain">🌴 Férias</button>
+  <button onclick="addBirthday()" class="btnMain">🎂 Aniversário</button>
+  <button onclick="openEventPopup()" class="btnMain">📅 Eventos</button>
+  <button onclick="openTrainingPopup()" class="btnMain">🎓 Treinamento</button>
+  <button onclick="exportWhats()" class="btnMain">📲 Exportar</button>
 
 </div>
 
