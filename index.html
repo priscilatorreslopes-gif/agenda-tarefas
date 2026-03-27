@@ -311,6 +311,9 @@ cursor:grab;
 
 <button onclick="exportWhats()" class="btnMain">📲 Exportar</button></div>
 
+<button onclick="openEventPopup()" class="btnMain">📅 Eventos</button>
+  
+<button onclick="openTrainingPopup()" class="btnMain">🎓 Treinamento</button>
 </div>
 
 <div id="calendar" class="calendar"></div>
@@ -745,6 +748,50 @@ if(start === end){
   }
 }
 
+    function saveEvent(){
+
+let name = document.getElementById("eventName").value
+let brand = document.getElementById("eventBrand").value
+let date = document.getElementById("eventDate").value
+let time = document.getElementById("eventTime").value
+
+if(!name || !date) return
+
+db.collection("events").add({
+  name,
+  brand,
+  date,
+  time
+})
+.then(()=>{
+  alert("Evento salvo 📅")
+  closeEventPopup()
+})
+}
+
+    function saveTraining(){
+
+let name = document.getElementById("trainingName").value
+let brand = document.getElementById("trainingBrand").value
+let date = document.getElementById("trainingDate").value
+let time = document.getElementById("trainingTime").value
+let participants = document.getElementById("trainingParticipants").value
+
+if(!name || !date) return
+
+db.collection("trainings").add({
+  name,
+  brand,
+  date,
+  time,
+  participants
+})
+.then(()=>{
+  alert("Treinamento salvo 🎓")
+  closeTrainingPopup()
+})
+}
+
 closeTaskPopup()
 
 }
@@ -941,6 +988,22 @@ function openTaskPopup(){
 function closeTaskPopup(){
   document.getElementById("taskPopup").style.display = "none"
 }
+
+function openEventPopup(){
+  document.getElementById("eventPopup").style.display = "flex"
+}
+
+function closeEventPopup(){
+  document.getElementById("eventPopup").style.display = "none"
+}
+
+function openTrainingPopup(){
+  document.getElementById("trainingPopup").style.display = "flex"
+}
+
+function closeTrainingPopup(){
+  document.getElementById("trainingPopup").style.display = "none"
+}
   
 function exportWhats(){
 html2canvas(document.querySelector(".calendar")).then(c=>{
@@ -1026,6 +1089,50 @@ return day+"/"+month+"/"+year
 
     <button onclick="saveTask()">Salvar</button>
     <button onclick="closeTaskPopup()">Cancelar</button>
+
+  </div>
+</div>
+
+<!-- 🔽 COLE AQUI EMBAIXO -->
+
+<div id="eventPopup" class="popup">
+  <div class="popupContent">
+
+    <h3>Novo Evento</h3>
+
+    <input id="eventName" placeholder="Nome do evento">
+    <input id="eventBrand" placeholder="Marca">
+
+    <label>Data</label>
+    <input type="date" id="eventDate">
+
+    <label>Horário</label>
+    <input type="time" id="eventTime">
+
+    <button onclick="saveEvent()">Salvar</button>
+    <button onclick="closeEventPopup()">Cancelar</button>
+
+  </div>
+</div>
+
+<div id="trainingPopup" class="popup">
+  <div class="popupContent">
+
+    <h3>Novo Treinamento</h3>
+
+    <input id="trainingName" placeholder="Treinamento">
+    <input id="trainingBrand" placeholder="Marca">
+
+    <label>Data</label>
+    <input type="date" id="trainingDate">
+
+    <label>Horário</label>
+    <input type="time" id="trainingTime">
+
+    <input id="trainingParticipants" placeholder="Participantes">
+
+    <button onclick="saveTraining()">Salvar</button>
+    <button onclick="closeTrainingPopup()">Cancelar</button>
 
   </div>
 </div>
