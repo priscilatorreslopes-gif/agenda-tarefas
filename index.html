@@ -676,11 +676,9 @@ div.appendChild(el)
 
 /* EVENTOS */
 
-events
-.filter(e => toStringDate(toDateLocal(e.date)) === dateString)
-.forEach(e => {
+/* EVENTOS */
 
- let eventosDia = events.filter(e => toStringDate(toDateLocal(e.date)) === dateString)
+let eventosDia = events.filter(e => toStringDate(toDateLocal(e.date)) === dateString)
 
 eventosDia.forEach(e => {
 
@@ -692,14 +690,10 @@ eventosDia.forEach(e => {
   div.appendChild(el)
 
 })
-
+  
 /* TREINAMENTOS */
 
-trainings
-.filter(t => toStringDate(toDateLocal(t.date)) === dateString)
-.forEach(t => {
-
-  let treinosDia = trainings.filter(t => toStringDate(toDateLocal(t.date)) === dateString)
+let treinosDia = trainings.filter(t => toStringDate(toDateLocal(t.date)) === dateString)
 
 treinosDia.forEach(t => {
 
