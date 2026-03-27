@@ -421,6 +421,8 @@ const equipe=[
 ]
 
 let tasks = []
+let events = []
+let trainings = []
 
 db.collection("tasks").onSnapshot((snapshot) => {
 
@@ -487,6 +489,36 @@ db.collection("birthdays").onSnapshot((snapshot) => {
 
 })
 
+db.collection("events").onSnapshot((snapshot) => {
+
+  events = []
+
+  snapshot.forEach((doc) => {
+    events.push({
+      id: doc.id,
+      ...doc.data()
+    })
+  })
+
+  render()
+
+})
+
+db.collection("trainings").onSnapshot((snapshot) => {
+
+  trainings = []
+
+  snapshot.forEach((doc) => {
+    trainings.push({
+      id: doc.id,
+      ...doc.data()
+    })
+  })
+
+  render()
+
+})
+  
 const vacationColors=["#f1c40f","#2ecc71","#3498db","#9b59b6","#e67e22"]
 
 let currentDate = hoje()
@@ -641,6 +673,45 @@ el.querySelector(".delVac").onclick = () => deleteVacation(v.id)
 div.appendChild(el)
 
 })
+
+/* EVENTOS */
+
+events
+.filter(e => e.date === dateString)
+.forEach(e => {
+
+  let el = document.createElement("div")
+  el.style.background = "#d6e6ff"
+  el.style.padding = "4px"
+  el.style.borderRadius = "6px"
+  el.style.marginBottom = "4px"
+  el.style.fontSize = "11px"
+
+  el.innerHTML = `📅 ${e.name} ${e.time ? "- " + e.time : ""}`
+
+  div.appendChild(el)
+
+})
+
+/* TREINAMENTOS */
+
+trainings
+.filter(t => t.date === dateString)
+.forEach(t => {
+
+  let el = document.createElement("div")
+  el.style.background = "#e8d6ff"
+  el.style.padding = "4px"
+  el.style.borderRadius = "6px"
+  el.style.marginBottom = "4px"
+  el.style.fontSize = "11px"
+
+  el.innerHTML = `🎓 ${t.name} ${t.time ? "- " + t.time : ""}`
+
+  div.appendChild(el)
+
+})
+  
 /* TAREFAS */
 
 let area=document.createElement("div")
