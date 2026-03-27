@@ -677,7 +677,7 @@ div.appendChild(el)
 /* EVENTOS */
 
 events
-.filter(e => e.date === dateString)
+.filter(e => toStringDate(toDateLocal(e.date)) === dateString)
 .forEach(e => {
 
   let el = document.createElement("div")
@@ -696,7 +696,7 @@ events
 /* TREINAMENTOS */
 
 trainings
-.filter(t => t.date === dateString)
+.filter(t => toStringDate(toDateLocal(t.date)) === dateString)
 .forEach(t => {
 
   let el = document.createElement("div")
