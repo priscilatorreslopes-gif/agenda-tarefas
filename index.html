@@ -680,14 +680,14 @@ events
 .filter(e => toStringDate(toDateLocal(e.date)) === dateString)
 .forEach(e => {
 
-  let el = document.createElement("div")
-  el.style.background = "#d6e6ff"
-  el.style.padding = "4px"
-  el.style.borderRadius = "6px"
-  el.style.marginBottom = "4px"
-  el.style.fontSize = "11px"
+ let eventosDia = events.filter(e => toStringDate(toDateLocal(e.date)) === dateString)
 
-  el.innerHTML = `📅 ${e.name} ${e.time ? "- " + e.time : ""}`
+eventosDia.forEach(e => {
+
+  let el = document.createElement("div")
+  el.className = "task c3"
+
+  el.innerText = `📅 ${e.name} ${e.time ? "- " + e.time : ""}`
 
   div.appendChild(el)
 
@@ -699,14 +699,14 @@ trainings
 .filter(t => toStringDate(toDateLocal(t.date)) === dateString)
 .forEach(t => {
 
-  let el = document.createElement("div")
-  el.style.background = "#e8d6ff"
-  el.style.padding = "4px"
-  el.style.borderRadius = "6px"
-  el.style.marginBottom = "4px"
-  el.style.fontSize = "11px"
+  let treinosDia = trainings.filter(t => toStringDate(toDateLocal(t.date)) === dateString)
 
-  el.innerHTML = `🎓 ${t.name} ${t.time ? "- " + t.time : ""}`
+treinosDia.forEach(t => {
+
+  let el = document.createElement("div")
+  el.className = "task c4"
+
+  el.innerText = `🎓 ${t.name} ${t.time ? "- " + t.time : ""}`
 
   div.appendChild(el)
 
