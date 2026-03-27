@@ -490,7 +490,7 @@ db.collection("birthdays").onSnapshot((snapshot) => {
 })
 
 db.collection("events").onSnapshot((snapshot) => {
-
+console.log("EVENTOS FIREBASE:", snapshot.size)  
   events = []
 
   snapshot.forEach((doc) => {
@@ -505,7 +505,7 @@ db.collection("events").onSnapshot((snapshot) => {
 })
 
 db.collection("trainings").onSnapshot((snapshot) => {
-
+console.log("TREINAMENTOS FIREBASE:", snapshot.size)
   trainings = []
 
   snapshot.forEach((doc) => {
@@ -673,8 +673,6 @@ el.querySelector(".delVac").onclick = () => deleteVacation(v.id)
 div.appendChild(el)
 
 })
-
-/* EVENTOS */
 
 /* EVENTOS */
 
