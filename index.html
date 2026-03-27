@@ -168,7 +168,7 @@ padding:4px 6px;
 border-radius:4px;
 margin:2px 0;
 font-size:11px;
-color:white;
+color:black;
 display:flex;
 justify-content:space-between;
 }
@@ -1009,7 +1009,18 @@ escala
   .forEach(e => {
 
  let el = document.createElement("div")
-el.className = "tagPessoa"
+
+let pessoa = equipe.find(p => p.nome === e.nome)
+
+let funcaoClasse = ""
+
+if(pessoa){
+  if(pessoa.funcao === "OP") funcaoClasse = "op"
+  if(pessoa.funcao === "ASS") funcaoClasse = "ass"
+  if(pessoa.funcao === "LID") funcaoClasse = "lid"
+}
+
+el.className = "tagPessoa " + funcaoClasse
 
 let spanNome = document.createElement("span")
 spanNome.innerText = "👤 " + e.nome
