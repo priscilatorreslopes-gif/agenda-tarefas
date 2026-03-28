@@ -168,8 +168,9 @@ padding:4px 6px;
 border-radius:4px;
 margin:2px 0;
 font-size:11px;
-color:black;
+color:white;
 font-weight:bold;
+box-shadow:0 2px 4px rgba(0,0,0,0.2);
 display:flex;
 justify-content:space-between;
 }
@@ -1011,9 +1012,11 @@ escala
 
  let el = document.createElement("div")
 
-let pessoa = equipe.find(p => p.nome === e.nome)
+let pessoa = equipe.find(p => 
+  p.nome.trim().toLowerCase() === e.nome.trim().toLowerCase()
+)
 
-let funcaoClasse = ""
+let funcaoClasse = "op"
 
 if(pessoa){
   if(pessoa.funcao === "OP") funcaoClasse = "op"
