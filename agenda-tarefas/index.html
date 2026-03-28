@@ -17,31 +17,31 @@ color:white;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:18px 25px; /* aumentei aqui */
+padding:10px 20px; /* aumentei aqui */
 position:relative;
 overflow:hidden;
 }
 
 .logoArea{display:flex;align-items:center;gap:15px;}
 .logoArea img{
-height:80px;
+height:65px;
 filter:drop-shadow(0 2px 6px rgba(0,0,0,0.3));
 }
 .frase img{
-height:140px;
+height:110px;
 opacity:0.95;
 filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25));
 }
 
 .topbar{
 background:white;
-padding:10px;
+padding:16px 14px; /* AUMENTA AQUI */
 display:flex;
 justify-content:space-between;
 align-items:center;
 border-bottom:1px solid #ddd;
 flex-wrap:wrap;
-gap:8px;
+gap:10px;
 }
 
 .controlsLeft,.controlsRight{
@@ -51,15 +51,77 @@ align-items:center;
 flex-wrap:wrap;
 }
 
-button{
-background:#7a00a8;
+  .topbarTop{
+display:flex;
+justify-content:space-between;
+align-items:center;
 color:white;
-border:none;
-padding:6px 12px;
-border-radius:6px;
-cursor:pointer;
+font-weight:bold;
 }
 
+.topbarTop button{
+background:white;
+color:#5d1e6f;
+font-weight:bold;
+padding:6px 10px;
+border-radius:6px;
+}
+
+#month{
+color:white;
+font-weight:bold;
+}
+
+  .topbarBottom{
+display:flex;
+justify-content:center;
+gap:12px;
+flex-wrap:wrap;
+}
+  
+.actions{
+display:flex;
+gap:10px;
+align-items:center;
+flex-wrap:wrap;
+}
+  
+button{
+border:none;
+cursor:pointer;
+font-size:14px;
+}
+
+.btnMain{
+display:flex;
+align-items:center;
+gap:6px;
+
+background:white;
+color:#5d1e6f;
+
+padding:10px 16px;
+border-radius:10px;
+
+font-weight:600;
+text-transform:uppercase;
+letter-spacing:0.5px;
+
+/* BORDA ROXA */
+border:2px solid #5d1e6f;
+
+/* PROFUNDIDADE */
+box-shadow:0 4px 10px rgba(0,0,0,0.15);
+
+/* ANIMAÇÃO */
+transition:0.2s;
+}
+
+  .btnMain:active{
+transform:translateY(2px);
+box-shadow:0 2px 5px rgba(0,0,0,0.2);
+}
+   
 .calendar{
 display:grid;
 grid-template-columns:repeat(7,1fr);
@@ -107,6 +169,8 @@ border-radius:4px;
 margin:2px 0;
 font-size:11px;
 color:white;
+font-weight:bold;
+box-shadow:0 2px 4px rgba(0,0,0,0.2);
 display:flex;
 justify-content:space-between;
 }
@@ -265,21 +329,33 @@ cursor:grab;
 
 <div class="topbar">
 
-<div class="controlsLeft">
-<button onclick="prevWeek()">⬅</button>
-<button onclick="goToday()">Hoje</button>
-<button onclick="nextWeek()">➡</button>
-<div id="month"></div>
-<input type="date" id="gotoDate">
-<button onclick="goToDate()">Ir</button>
+<!-- 🔝 LINHA DE CIMA -->
+<div class="topbarTop">
+
+  <div class="controlsLeft">
+    <button onclick="prevWeek()">⬅</button>
+    <button onclick="goToday()">HOJE</button>
+    <button onclick="nextWeek()">➡</button>
+    <div id="month"></div>
+  </div>
+
+  <div class="controlsRight">
+    <input type="date" id="gotoDate">
+    <button onclick="goToDate()">IR</button>
+  </div>
+
 </div>
 
-<div class="controlsRight">
-<input type="date" id="taskDate">
-<button onclick="openTaskPopup()">+ Tarefa</button>
-<button onclick="addVacation()">Férias</button>
-<button onclick="addBirthday()">🎂</button>
-<button onclick="exportWhats()">📲</button>
+<!-- 🔽 LINHA DE BAIXO -->
+<div class="topbarBottom">
+
+  <button onclick="openTaskPopup()" class="btnMain">📌 Tarefa</button>
+  <button onclick="addVacation()" class="btnMain">🌴 Férias</button>
+  <button onclick="addBirthday()" class="btnMain">🎂 Aniversário</button>
+  <button onclick="openEventPopup()" class="btnMain">📅 Eventos</button>
+  <button onclick="openTrainingPopup()" class="btnMain">🎓 Treinamento</button>
+  <button onclick="exportWhats()" class="btnMain">📲 Exportar</button>
+
 </div>
 
 </div>
@@ -347,6 +423,8 @@ const equipe=[
 ]
 
 let tasks = []
+let events = []
+let trainings = []
 
 db.collection("tasks").onSnapshot((snapshot) => {
 
@@ -413,6 +491,36 @@ db.collection("birthdays").onSnapshot((snapshot) => {
 
 })
 
+db.collection("events").onSnapshot((snapshot) => {
+console.log("EVENTOS FIREBASE:", snapshot.size)  
+  events = []
+
+  snapshot.forEach((doc) => {
+    events.push({
+      id: doc.id,
+      ...doc.data()
+    })
+  })
+
+  render()
+
+})
+
+db.collection("trainings").onSnapshot((snapshot) => {
+console.log("TREINAMENTOS FIREBASE:", snapshot.size)
+  trainings = []
+
+  snapshot.forEach((doc) => {
+    trainings.push({
+      id: doc.id,
+      ...doc.data()
+    })
+  })
+
+  render()
+
+})
+  
 const vacationColors=["#f1c40f","#2ecc71","#3498db","#9b59b6","#e67e22"]
 
 let currentDate = hoje()
@@ -567,6 +675,37 @@ el.querySelector(".delVac").onclick = () => deleteVacation(v.id)
 div.appendChild(el)
 
 })
+
+/* EVENTOS */
+
+let eventosDia = events.filter(e => toStringDate(toDateLocal(e.date)) === dateString)
+
+eventosDia.forEach(e => {
+
+  let el = document.createElement("div")
+  el.className = "task c3"
+
+  el.innerText = `📅 ${e.name} ${e.time ? "- " + e.time : ""}`
+
+  div.appendChild(el)
+
+})
+  
+/* TREINAMENTOS */
+
+let treinosDia = trainings.filter(t => toStringDate(toDateLocal(t.date)) === dateString)
+
+treinosDia.forEach(t => {
+
+  let el = document.createElement("div")
+  el.className = "task c4"
+
+  el.innerText = `🎓 ${t.name} ${t.time ? "- " + t.time : ""}`
+
+  div.appendChild(el)
+
+})
+  
 /* TAREFAS */
 
 let area=document.createElement("div")
@@ -719,6 +858,50 @@ if(start === end){
 closeTaskPopup()
 
 }
+
+function saveEvent(){
+
+let name = document.getElementById("eventName").value
+let brand = document.getElementById("eventBrand").value
+let date = document.getElementById("eventDate").value
+let time = document.getElementById("eventTime").value
+
+if(!name || !date) return
+
+db.collection("events").add({
+  name,
+  brand,
+  date,
+  time
+})
+.then(()=>{
+  alert("Evento salvo 📅")
+  closeEventPopup()
+})
+}
+
+function saveTraining(){
+
+let name = document.getElementById("trainingName").value
+let brand = document.getElementById("trainingBrand").value
+let date = document.getElementById("trainingDate").value
+let time = document.getElementById("trainingTime").value
+let participants = document.getElementById("trainingParticipants").value
+
+if(!name || !date) return
+
+db.collection("trainings").add({
+  name,
+  brand,
+  date,
+  time,
+  participants
+})
+.then(()=>{
+  alert("Treinamento salvo 🎓")
+  closeTrainingPopup()
+})
+}
   
 function toggleDone(id){
 
@@ -828,7 +1011,20 @@ escala
   .forEach(e => {
 
  let el = document.createElement("div")
-el.className = "tagPessoa"
+
+let pessoa = equipe.find(p => 
+  p.nome.trim().toLowerCase() === e.nome.trim().toLowerCase()
+)
+
+let funcaoClasse = "op"
+
+if(pessoa){
+  if(pessoa.funcao === "OP") funcaoClasse = "op"
+  if(pessoa.funcao === "ASS") funcaoClasse = "ass"
+  if(pessoa.funcao === "LID") funcaoClasse = "lid"
+}
+
+el.className = "tagPessoa " + funcaoClasse
 
 let spanNome = document.createElement("span")
 spanNome.innerText = "👤 " + e.nome
@@ -911,6 +1107,22 @@ function openTaskPopup(){
 
 function closeTaskPopup(){
   document.getElementById("taskPopup").style.display = "none"
+}
+
+function openEventPopup(){
+  document.getElementById("eventPopup").style.display = "flex"
+}
+
+function closeEventPopup(){
+  document.getElementById("eventPopup").style.display = "none"
+}
+
+function openTrainingPopup(){
+  document.getElementById("trainingPopup").style.display = "flex"
+}
+
+function closeTrainingPopup(){
+  document.getElementById("trainingPopup").style.display = "none"
 }
   
 function exportWhats(){
@@ -997,6 +1209,50 @@ return day+"/"+month+"/"+year
 
     <button onclick="saveTask()">Salvar</button>
     <button onclick="closeTaskPopup()">Cancelar</button>
+
+  </div>
+</div>
+
+<!-- 🔽 COLE AQUI EMBAIXO -->
+
+<div id="eventPopup" class="popup">
+  <div class="popupContent">
+
+    <h3>Novo Evento</h3>
+
+    <input id="eventName" placeholder="Nome do evento">
+    <input id="eventBrand" placeholder="Marca">
+
+    <label>Data</label>
+    <input type="date" id="eventDate">
+
+    <label>Horário</label>
+    <input type="time" id="eventTime">
+
+    <button onclick="saveEvent()">Salvar</button>
+    <button onclick="closeEventPopup()">Cancelar</button>
+
+  </div>
+</div>
+
+<div id="trainingPopup" class="popup">
+  <div class="popupContent">
+
+    <h3>Novo Treinamento</h3>
+
+    <input id="trainingName" placeholder="Treinamento">
+    <input id="trainingBrand" placeholder="Marca">
+
+    <label>Data</label>
+    <input type="date" id="trainingDate">
+
+    <label>Horário</label>
+    <input type="time" id="trainingTime">
+
+    <input id="trainingParticipants" placeholder="Participantes">
+
+    <button onclick="saveTraining()">Salvar</button>
+    <button onclick="closeTrainingPopup()">Cancelar</button>
 
   </div>
 </div>
