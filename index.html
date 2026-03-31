@@ -168,7 +168,6 @@ padding:4px 6px;
 border-radius:4px;
 margin:2px 0;
 font-size:11px;
-color:white;
 font-weight:bold;
 box-shadow:0 2px 4px rgba(0,0,0,0.2);
 display:flex;
@@ -376,6 +375,26 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
+// 🎨 CONTRASTE WCAG 4.5:1
+
+function getLuminance(hex){
+let r=parseInt(hex.substr(1,2),16)/255
+let g=parseInt(hex.substr(3,2),16)/255
+let b=parseInt(hex.substr(5,2),16)/255
+r=r<=0.03928?r/12.92:Math.pow((r+0.055)/1.055,2.4)
+g=g<=0.03928?g/12.92:Math.pow((g+0.055)/1.055,2.4)
+b=b<=0.03928?b/12.92:Math.pow((b+0.055)/1.055,2.4)
+return 0.2126*r+0.7152*g+0.0722*b
+}
+
+function getContrastColor(bgHex){
+let L=getLuminance(bgHex)
+let contrastWhite=(1.05)/(L+0.05)
+return contrastWhite>=4.5?"#ffffff":"#1a1a1a"
+}
+
+const coresFuncao={op:"#9f156b",ass:"#53b5ad",lid:"#5d1e6f"}
 
 // 🔒 MOTOR DE DATAS PROFISSIONAL
 
@@ -1025,6 +1044,10 @@ if(pessoa){
 }
 
 el.className = "tagPessoa " + funcaoClasse
+
+let corFundo=coresFuncao[funcaoClasse]||"#9f156b"
+let corTexto=getContrastColor(corFundo)
+el.style.color=corTexto
 
 let spanNome = document.createElement("span")
 spanNome.innerText = "👤 " + e.nome
