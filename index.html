@@ -1,317 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agenda Operacional - Me.linda</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
 <style>
-
-body{margin:0;font-family:Arial;background:#f4f4f4;}
-
-header{
-background: linear-gradient(90deg,#a855f7,#ff6fa3);
-color:white;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:10px 20px; /* aumentei aqui */
-position:relative;
-overflow:hidden;
+:root {
+  --plum: #5d1e6f;
+  --plum-light: #7a3b8a;
+  --rose: #d4447c;
+  --rose-soft: #f0a0bf;
+  --blush: #fdf2f6;
+  --cream: #faf8f5;
+  --surface: #ffffff;
+  --text: #2d1b33;
+  --text-muted: #8c7a92;
+  --border: #ede4ef;
+  --op-bg: #9f156b;
+  --ass-bg: #53b5ad;
+  --lid-bg: #5d1e6f;
+  --shadow-sm: 0 1px 3px rgba(93,30,111,0.06);
+  --shadow-md: 0 4px 16px rgba(93,30,111,0.08);
+  --shadow-lg: 0 8px 32px rgba(93,30,111,0.12);
+  --radius: 14px;
+  --radius-sm: 8px;
 }
 
-.logoArea{display:flex;align-items:center;gap:15px;}
-.logoArea img{
-height:65px;
-filter:drop-shadow(0 2px 6px rgba(0,0,0,0.3));
-}
-.frase img{
-height:110px;
-opacity:0.95;
-filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25));
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
 }
 
-.topbar{
-background:white;
-padding:16px 14px; /* AUMENTA AQUI */
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-bottom:1px solid #ddd;
-flex-wrap:wrap;
-gap:10px;
+/* HEADER */
+header {
+  background: linear-gradient(135deg, var(--plum) 0%, #8b3a9f 40%, var(--rose) 100%);
+  color: white;
+  padding: 16px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.controlsLeft,.controlsRight{
-display:flex;
-gap:8px;
-align-items:center;
-flex-wrap:wrap;
+header::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  border-radius: 50%;
 }
 
-  .topbarTop{
-display:flex;
-justify-content:space-between;
-align-items:center;
-color:white;
-font-weight:bold;
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -80%;
+  left: 20%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255,111,163,0.15) 0%, transparent 70%);
+  border-radius: 50%;
 }
 
-.topbarTop button{
-background:white;
-color:#5d1e6f;
-font-weight:bold;
-padding:6px 10px;
-border-radius:6px;
+.logoArea {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
 }
 
-#month{
-color:white;
-font-weight:bold;
+.logoArea img {
+  height: 58px;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
 }
 
-  .topbarBottom{
-display:flex;
-justify-content:center;
-gap:12px;
-flex-wrap:wrap;
-}
-  
-.actions{
-display:flex;
-gap:10px;
-align-items:center;
-flex-wrap:wrap;
-}
-  
-button{
-border:none;
-cursor:pointer;
-font-size:14px;
+.logoArea h2 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.3px;
 }
 
-.btnMain{
-display:flex;
-align-items:center;
-gap:6px;
-
-background:white;
-color:#5d1e6f;
-
-padding:10px 16px;
-border-radius:10px;
-
-font-weight:600;
-text-transform:uppercase;
-letter-spacing:0.5px;
-
-/* BORDA ROXA */
-border:2px solid #5d1e6f;
-
-/* PROFUNDIDADE */
-box-shadow:0 4px 10px rgba(0,0,0,0.15);
-
-/* ANIMAÇÃO */
-transition:0.2s;
+.frase {
+  position: relative;
+  z-index: 1;
 }
 
-  .btnMain:active{
-transform:translateY(2px);
-box-shadow:0 2px 5px rgba(0,0,0,0.2);
-}
-   
-.calendar{
-display:grid;
-grid-template-columns:repeat(7,1fr);
-gap:10px;
-padding:10px;
+.frase img {
+  height: 90px;
+  opacity: 0.9;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
 }
 
-.day{
-background:white;
-border-radius:10px;
-padding:8px;
-display:flex;
-flex-direction:column;
-min-height:500px;
-box-shadow:0 1px 4px rgba(0,0,0,0.1);
+/* TOPBAR */
+.topbar {
+  background: var(--surface);
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.domingo{background:#f3e8ff;}
-.feriado{background:#ffe6ea;}
-.aniversarioDia{background:#fff4d6;}
-
-.feriadoNome{font-size:10px;color:#c0392b;}
-
-.dayHeader{font-weight:bold;}
-.counter{font-size:11px;color:#777;margin-bottom:6px;}
-
-.turno{margin-bottom:8px;font-size:12px;}
-
-.turnoHeader{
-display:flex;
-justify-content:space-between;
-align-items:center;
+.topbarTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.turnoHeader button{
-background:#eee;
-color:#333;
-padding:2px 6px;
-border-radius:4px;
+.controlsLeft, .controlsRight {
+  display: flex;
+  gap: 6px;
+  align-items: center;
 }
 
-.tagPessoa{
-padding:4px 6px;
-border-radius:4px;
-margin:2px 0;
-font-size:11px;
-font-weight:bold;
-box-shadow:0 2px 4px rgba(0,0,0,0.2);
-display:flex;
-justify-content:space-between;
+.controlsLeft button, .controlsRight button {
+  background: var(--blush);
+  color: var(--plum);
+  border: 1px solid var(--border);
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.op{background:#9f156b;}
-.ass{background:#53b5ad;}
-.lid{background:#5d1e6f;}
-
-.birthdayTag{
-background:#ffeaa7;
-padding:4px 6px;
-border-radius:6px;
-font-size:12px;
-margin-bottom:4px;
-display:flex;
-justify-content:space-between;
-align-items:center;
+.controlsLeft button:hover, .controlsRight button:hover {
+  background: var(--plum);
+  color: white;
+  border-color: var(--plum);
 }
 
-.vacationTag{
-padding:3px 6px;
-border-radius:4px;
-color:white;
-font-size:11px;
-margin-bottom:3px;
-display:flex;
-justify-content:space-between;
+#month {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--plum);
+  margin-left: 12px;
+  text-transform: capitalize;
 }
 
-.tasks{flex:1;}
-
-.task{
-padding:6px;
-border-radius:6px;
-margin-bottom:5px;
-display:flex;
-justify-content:space-between;
-font-size:13px;
-cursor:grab;
+.controlsRight input[type="date"] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
 }
 
-.taskButtons{display:flex;gap:3px;}
-
-.done{text-decoration:line-through;opacity:0.6;}
-
-.c1{background:#fff2a6}
-.c2{background:#d6f5d6}
-.c3{background:#d6e6ff}
-.c4{background:#efd6ff}
-.c5{background:#ffd6e7}
-.c6{background:#ffe2c7}
-
-  .popupSelect{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.5);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:999;
+.controlsRight input[type="date"]:focus {
+  border-color: var(--plum-light);
+  box-shadow: 0 0 0 3px rgba(93,30,111,0.08);
 }
 
-.popupBox{
-  background:white;
-  padding:20px;
-  border-radius:10px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  max-height:80vh;
-  overflow:auto;
+.topbarBottom {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.popupBox button{
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  background:#7a00a8;
-  color:white;
-  cursor:pointer;
-}
-  
-.birthdayTag{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:#ffe4a3;
-  padding:4px 8px;
-  border-radius:6px;
-  margin-top:4px;
+/* ACTION BUTTONS */
+button {
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
 }
 
-.delBirthday{
-  border:none;
-  background:transparent;
-  cursor:pointer;
-  font-size:14px;
-}  
-  /* POPUP TAREFA */
-
-.popup{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.4);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:999;
+.btnMain {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  color: var(--plum);
+  padding: 9px 16px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  font-family: 'DM Sans', sans-serif;
 }
 
-.popupContent{
-  background:white;
-  padding:20px;
-  border-radius:10px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  width:260px;
+.btnMain:hover {
+  border-color: var(--rose);
+  color: var(--rose);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
-.popupContent input{
-  padding:8px;
-  border-radius:6px;
-  border:1px solid #ccc;
+.btnMain:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
 
-.popupContent button{
-  padding:10px;
-  border:none;
-  border-radius:6px;
-  background:#7a00a8;
-  color:white;
-  cursor:pointer;
+/* CALENDAR GRID */
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  padding: 16px 20px;
 }
+
+.day {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  min-height: 480px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.2s ease;
+}
+
+.day:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.domingo {
+  background: linear-gradient(180deg, #f6edff 0%, var(--surface) 40%);
+  border-color: #e2d0f0;
+}
+
+.feriado {
+  background: linear-gradient(180deg, #fff0f3 0%, var(--surface) 40%);
+  border-color: #f5d0d8;
+}
+
+.aniversarioDia {
+  background: linear-gradient(180deg, #fef7e0 0%, var(--surface) 40%);
+  border-color: #f0e0b0;
+}
+
+.dayHeader {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--plum);
+  margin-bottom: 2px;
+}
+
+.feriadoNome {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--rose);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.counter {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* TURNOS */
+.turno {
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+
+.turnoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+}
+
+.turnoHeader b {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.turnoHeader button {
+  background: var(--blush);
+  color: var(--plum);
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.turnoHeader button:hover {
+  background: var(--plum);
+  color: white;
+  border-color: var(--plum);
+}
+
+/* TAGS PESSOA */
+.tagPessoa {
+  padding: 5px 8px;
+  border-radius: 6px;
+  margin: 2px 0;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: opacity 0.15s ease;
+}
+
+.tagPessoa:hover { opacity: 0.9; }
+
+.tagPessoa span:last-child {
+  opacity: 0.6;
+  font-size: 10px;
+  transition: opacity 0.15s;
+}
+
+.tagPessoa:hover span:last-child { opacity: 1; }
+
+.op { background: var(--op-bg); }
+.ass { background: var(--ass-bg); }
+.lid { background: var(--lid-bg); }
+
+/* BIRTHDAY TAG */
+.birthdayTag {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #fff4d6, #ffe8a0);
+  padding: 5px 8px;
+  border-radius: 6px;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid #f0d890;
+}
+
+.delBirthday {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+
+.delBirthday:hover { opacity: 1; }
+
+/* VACATION TAG */
+.vacationTag {
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  letter-spacing: 0.2px;
+}
+
+.vacationTag span { cursor: pointer; }
+
+/* TASKS */
+.tasks { flex: 1; }
+
+.task {
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  cursor: grab;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.task:hover { border-color: var(--border); }
+
+.taskButtons {
+  display: flex;
+  gap: 2px;
+  opacity: 0.4;
+  transition: opacity 0.15s;
+}
+
+.task:hover .taskButtons { opacity: 1; }
+
+.taskButtons button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+
+.taskButtons button:hover { background: rgba(0,0,0,0.06); }
+
+.done {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.c1 { background: #fef9e0; }
+.c2 { background: #e8f8e8; }
+.c3 { background: #e4eeff; }
+.c4 { background: #f2e8ff; }
+.c5 { background: #ffe8f0; }
+.c6 { background: #fff0e0; }
+
+/* POPUPS */
+.popupSelect, .popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(45,27,51,0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
+}
+
+.popup { display: none; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.popupBox, .popupContent {
+  background: var(--surface);
+  padding: 24px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 24px 64px rgba(45,27,51,0.2);
+  border: 1px solid var(--border);
+  animation: slideUp 0.25s ease;
+}
+
+.popupContent {
+  width: 300px;
+}
+
+.popupBox h3, .popupContent h3 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--plum);
+  margin-bottom: 4px;
+}
+
+.popupBox button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: var(--plum);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s ease;
+}
+
+.popupBox button:hover {
+  background: var(--plum-light);
+  transform: translateY(-1px);
+}
+
+.popupBox label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: background 0.1s;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.popupBox label:hover {
+  background: var(--blush);
+}
+
+.popupBox label input[type="checkbox"] {
+  accent-color: var(--plum);
+  width: 16px;
+  height: 16px;
+}
+
+.popupContent input, .popupContent select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.popupContent input:focus {
+  border-color: var(--plum-light);
+  box-shadow: 0 0 0 3px rgba(93,30,111,0.08);
+}
+
+.popupContent label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.popupContent button {
+  padding: 11px 16px;
+  border: none;
+  border-radius: 10px;
+  background: var(--plum);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s ease;
+}
+
+.popupContent button:hover {
+  background: var(--plum-light);
+}
+
+.popupContent button:last-child {
+  background: var(--cream);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.popupContent button:last-child:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
 </style>
-
 </head>
 
 <body>
@@ -328,33 +606,26 @@ cursor:grab;
 
 <div class="topbar">
 
-<!-- 🔝 LINHA DE CIMA -->
 <div class="topbarTop">
-
   <div class="controlsLeft">
-    <button onclick="prevWeek()">⬅</button>
+    <button onclick="prevWeek()">&#8592;</button>
     <button onclick="goToday()">HOJE</button>
-    <button onclick="nextWeek()">➡</button>
+    <button onclick="nextWeek()">&#8594;</button>
     <div id="month"></div>
   </div>
-
   <div class="controlsRight">
     <input type="date" id="gotoDate">
     <button onclick="goToDate()">IR</button>
   </div>
-
 </div>
 
-<!-- 🔽 LINHA DE BAIXO -->
 <div class="topbarBottom">
-
   <button onclick="openTaskPopup()" class="btnMain">📌 Tarefa</button>
   <button onclick="addVacation()" class="btnMain">🌴 Férias</button>
   <button onclick="addBirthday()" class="btnMain">🎂 Aniversário</button>
   <button onclick="openEventPopup()" class="btnMain">📅 Eventos</button>
   <button onclick="openTrainingPopup()" class="btnMain">🎓 Treinamento</button>
   <button onclick="exportWhats()" class="btnMain">📲 Exportar</button>
-
 </div>
 
 </div>
@@ -363,7 +634,6 @@ cursor:grab;
 
 <script>
 
-// 🔥 FIREBASE (COLE AQUI EM CIMA DE TUDO)
 const firebaseConfig = {
   apiKey: "AIzaSyCJTroKr2Oax-MJWPqGRfWaKjeK5RMweeM",
   authDomain: "agenda-tarefas-bauru.firebaseapp.com",
@@ -376,7 +646,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 🎨 CONTRASTE WCAG 4.5:1
+// CONTRASTE WCAG 4.5:1
 
 function getLuminance(hex){
 let r=parseInt(hex.substr(1,2),16)/255
@@ -396,7 +666,7 @@ return contrastWhite>=4.5?"#ffffff":"#1a1a1a"
 
 const coresFuncao={op:"#9f156b",ass:"#53b5ad",lid:"#5d1e6f"}
 
-// 🔒 MOTOR DE DATAS PROFISSIONAL
+// MOTOR DE DATAS
 
 function toDateLocal(dateString){
 let [y,m,d] = dateString.split("-")
@@ -407,7 +677,7 @@ function toStringDate(date){
 let y = date.getFullYear()
 let m = String(date.getMonth()+1).padStart(2,'0')
 let d = String(date.getDate()).padStart(2,'0')
-return `${y}-${m}-${d}`
+return y+"-"+m+"-"+d
 }
 
 function hoje(){
@@ -418,12 +688,10 @@ return new Date(d.getFullYear(), d.getMonth(), d.getDate())
 const days=["Seg","Ter","Qua","Qui","Sex","Sab","Dom"]
 
 function getDiaSemana(date){
-
 const nomes = ["Dom","Seg","Ter","Qua","Qui","Sex","Sab"]
-
 return nomes[date.getDay()]
-
 }
+
 const equipe=[
 {nome:"Luiza",funcao:"OP"},
 {nome:"Lauryne",funcao:"OP"},
@@ -445,102 +713,67 @@ let tasks = []
 let events = []
 let trainings = []
 
-db.collection("tasks").onSnapshot((snapshot) => {
-
+db.collection("tasks").onSnapshot(function(snapshot) {
   tasks = []
-
-  snapshot.forEach((doc) => {
-    let data = doc.data()
-    tasks.push({
-      id: doc.id,
-      ...data
-    })
+  snapshot.forEach(function(doc) {
+    var data = doc.data()
+    tasks.push({ id: doc.id, text: data.text, day: data.day, color: data.color, done: data.done })
   })
-
   render()
-
 })
+
 let escala = []
 
-db.collection("escala").onSnapshot((snapshot) => {
-
+db.collection("escala").onSnapshot(function(snapshot) {
   escala = []
-
-  snapshot.forEach((doc) => {
-    escala.push({
-      id: doc.id,
-      ...doc.data()
-    })
+  snapshot.forEach(function(doc) {
+    var data = doc.data()
+    escala.push({ id: doc.id, date: data.date, turno: data.turno, nome: data.nome })
   })
-
   render()
-
 })
-  
+
 let vacations = []
 
-db.collection("vacations").onSnapshot((snapshot) => {
-
+db.collection("vacations").onSnapshot(function(snapshot) {
   vacations = []
-
-  snapshot.forEach((doc) => {
-    vacations.push({
-      id: doc.id,
-      ...doc.data()
-    })
+  snapshot.forEach(function(doc) {
+    var data = doc.data()
+    vacations.push({ id: doc.id, name: data.name, start: data.start, end: data.end, color: data.color })
   })
-
   render()
-
 })
+
 let birthdays = []
 
-db.collection("birthdays").onSnapshot((snapshot) => {
-
+db.collection("birthdays").onSnapshot(function(snapshot) {
   birthdays = []
-
-  snapshot.forEach((doc) => {
-    birthdays.push({
-      id: doc.id,
-      ...doc.data()
-    })
+  snapshot.forEach(function(doc) {
+    var data = doc.data()
+    birthdays.push({ id: doc.id, nome: data.nome, data: data.data })
   })
-
   render()
-
 })
 
-db.collection("events").onSnapshot((snapshot) => {
-console.log("EVENTOS FIREBASE:", snapshot.size)  
+db.collection("events").onSnapshot(function(snapshot) {
   events = []
-
-  snapshot.forEach((doc) => {
-    events.push({
-      id: doc.id,
-      ...doc.data()
-    })
+  snapshot.forEach(function(doc) {
+    var data = doc.data()
+    events.push({ id: doc.id, name: data.name, brand: data.brand, date: data.date, time: data.time })
   })
-
   render()
-
 })
 
-db.collection("trainings").onSnapshot((snapshot) => {
-console.log("TREINAMENTOS FIREBASE:", snapshot.size)
+db.collection("trainings").onSnapshot(function(snapshot) {
   trainings = []
-
-  snapshot.forEach((doc) => {
-    trainings.push({
-      id: doc.id,
-      ...doc.data()
-    })
+  snapshot.forEach(function(doc) {
+    var data = doc.data()
+    trainings.push({ id: doc.id, name: data.name, brand: data.brand, date: data.date, time: data.time, participants: data.participants, done: data.done })
   })
-
   render()
-
 })
-  
-const vacationColors=["#f1c40f","#2ecc71","#3498db","#9b59b6","#e67e22"]
+
+var vacationColors=["#f1c40f","#2ecc71","#3498db","#9b59b6","#e67e22"]
 
 let currentDate = hoje()
 
@@ -564,20 +797,20 @@ let p=pascoa(ano)
 let sexta=new Date(p);sexta.setDate(p.getDate()-2)
 let corpus=new Date(p);corpus.setDate(p.getDate()+60)
 
-return{
-[ano+"-01-01"]:"Confraternização",
-[ano+"-04-21"]:"Tiradentes",
-[ano+"-05-01"]:"Trabalho",
-[ano+"-09-07"]:"Independência",
-[ano+"-10-12"]:"Aparecida",
-[ano+"-11-02"]:"Finados",
-[ano+"-11-15"]:"República",
-[ano+"-12-25"]:"Natal",
-[ano+"-08-01"]:"Bauru",
-[f(sexta)]:"Sexta Santa",
-[f(p)]:"Páscoa",
-[f(corpus)]:"Corpus Christi"
-}
+var result = {}
+result[ano+"-01-01"]="Confraternização"
+result[ano+"-04-21"]="Tiradentes"
+result[ano+"-05-01"]="Trabalho"
+result[ano+"-09-07"]="Independência"
+result[ano+"-10-12"]="Aparecida"
+result[ano+"-11-02"]="Finados"
+result[ano+"-11-15"]="República"
+result[ano+"-12-25"]="Natal"
+result[ano+"-08-01"]="Bauru"
+result[f(sexta)]="Sexta Santa"
+result[f(p)]="Páscoa"
+result[f(corpus)]="Corpus Christi"
+return result
 
 }
 
@@ -586,9 +819,9 @@ return{
 function render(){
 
 let calendar=document.getElementById("calendar")
-calendar.innerHTML=""
+calendar.textContent=""
 
-document.getElementById("month").innerText=
+document.getElementById("month").textContent=
 currentDate.toLocaleString("pt-BR",{month:"long",year:"numeric"})
 
 let start=new Date(currentDate)
@@ -596,7 +829,7 @@ let day=start.getDay()
 let diff=start.getDate()-day+(day===0?-6:1)
 start.setDate(diff)
 
-days.forEach((d,i)=>{
+days.forEach(function(d,i){
 
 let dayDate=new Date(start)
 dayDate.setDate(start.getDate()+i)
@@ -611,172 +844,195 @@ div.className="day"
 
 let diaMes=String(dayDate.getDate()).padStart(2,'0')+"/"+String(dayDate.getMonth()+1).padStart(2,'0')
 
-let aniversariantes=birthdays.filter(b=>b.data===diaMes)
+let aniversariantes=birthdays.filter(function(b){return b.data===diaMes})
 
 if(dayDate.getDay()===0) div.classList.add("domingo")
 if(nomeFeriado) div.classList.add("feriado")
 if(aniversariantes.length>0) div.classList.add("aniversarioDia")
 
-let dayTasks=tasks.filter(t=>t.day==dateString)
-let done=dayTasks.filter(t=>t.done).length
+let dayTasks=tasks.filter(function(t){return t.day==dateString})
+let done=dayTasks.filter(function(t){return t.done}).length
 
-div.innerHTML=`
-<div class="dayHeader">${getDiaSemana(dayDate)} ${dayDate.getDate()}</div>
-${nomeFeriado?`<div class="feriadoNome">${nomeFeriado}</div>`:""}
-<div class="counter">${done}/${dayTasks.length} tarefas</div>
-`
+// Day header
+let headerEl=document.createElement("div")
+headerEl.className="dayHeader"
+headerEl.textContent=getDiaSemana(dayDate)+" "+dayDate.getDate()
+div.appendChild(headerEl)
 
-/* ESCALA */
+// Feriado
+if(nomeFeriado){
+  let feriadoEl=document.createElement("div")
+  feriadoEl.className="feriadoNome"
+  feriadoEl.textContent=nomeFeriado
+  div.appendChild(feriadoEl)
+}
 
-div.innerHTML+=["abertura","intermediario","fechamento"].map(t=>`
-<div class="turno">
-<div class="turnoHeader">
-<b>${t}</b>
-<button onclick="addPessoa('${dateString}','${t}')">➕</button>
-</div>
-<div id="${t}-${dateString}"></div>
-</div>
-`).join("")
+// Counter
+let counterEl=document.createElement("div")
+counterEl.className="counter"
+counterEl.textContent=done+"/"+dayTasks.length+" tarefas"
+div.appendChild(counterEl)
+
+// Escala turnos
+var turnos=["abertura","intermediario","fechamento"]
+turnos.forEach(function(t){
+  let turnoDiv=document.createElement("div")
+  turnoDiv.className="turno"
+
+  let turnoHeader=document.createElement("div")
+  turnoHeader.className="turnoHeader"
+
+  let turnoLabel=document.createElement("b")
+  turnoLabel.textContent=t
+
+  let addBtn=document.createElement("button")
+  addBtn.textContent="+"
+  addBtn.onclick=function(){addPessoa(dateString,t)}
+
+  turnoHeader.appendChild(turnoLabel)
+  turnoHeader.appendChild(addBtn)
+  turnoDiv.appendChild(turnoHeader)
+
+  let turnoContainer=document.createElement("div")
+  turnoContainer.id=t+"-"+dateString
+  turnoDiv.appendChild(turnoContainer)
+
+  div.appendChild(turnoDiv)
+})
 
 calendar.appendChild(div)
 
-/* ANIVERSÁRIO */
+/* ANIVERSARIO */
 
-aniversariantes.forEach(b=>{
-
+aniversariantes.forEach(function(b){
 let el = document.createElement("div")
 el.className = "birthdayTag"
 
 let span = document.createElement("span")
-span.innerText = "🎂 " + b.nome
+span.textContent = "🎂 " + b.nome
 
 let btn = document.createElement("button")
-btn.innerText = "✖"
+btn.textContent = "✖"
 btn.className = "delBirthday"
-btn.onclick = () => deleteBirthday(b.id)
+btn.onclick = function(){ deleteBirthday(b.id) }
 
 el.appendChild(span)
 el.appendChild(btn)
-  
 div.appendChild(el)
-
 })
 
-/* FÉRIAS */
+/* FERIAS */
 
-vacations.filter(v=>{
-
+vacations.filter(function(v){
 let current = toDateLocal(dateString)
-let start = toDateLocal(v.start)
-let end = toDateLocal(v.end)
-
-return current >= start && current <= end
-
+let vstart = toDateLocal(v.start)
+let vend = toDateLocal(v.end)
+return current >= vstart && current <= vend
 })
-.forEach(v=>{
-
+.forEach(function(v){
 let el=document.createElement("div")
 el.className="vacationTag"
 el.style.background=v.color
 
-el.innerHTML=`
-<span>${v.name}</span>
-<div>
-<span class="editVac">✏️</span>
-<span class="delVac">✖</span>
-</div>
-`
+let nameSpan=document.createElement("span")
+nameSpan.textContent=v.name
 
-// 👇 AQUI ESTÁ O SEGREDO
-el.querySelector(".editVac").onclick = () => editVacation(v.id)
-el.querySelector(".delVac").onclick = () => deleteVacation(v.id)
+let actionsDiv=document.createElement("div")
 
+let editSpan=document.createElement("span")
+editSpan.textContent="✏️"
+editSpan.style.cursor="pointer"
+editSpan.onclick=function(){editVacation(v.id)}
+
+let delSpan=document.createElement("span")
+delSpan.textContent="✖"
+delSpan.style.cursor="pointer"
+delSpan.onclick=function(){deleteVacation(v.id)}
+
+actionsDiv.appendChild(editSpan)
+actionsDiv.appendChild(delSpan)
+
+el.appendChild(nameSpan)
+el.appendChild(actionsDiv)
 div.appendChild(el)
-
 })
 
 /* EVENTOS */
 
-let eventosDia = events.filter(e => toStringDate(toDateLocal(e.date)) === dateString)
+let eventosDia = events.filter(function(e){ return toStringDate(toDateLocal(e.date)) === dateString })
 
-eventosDia.forEach(e => {
-
+eventosDia.forEach(function(e){
   let el = document.createElement("div")
   el.className = "task c3"
 
   let span = document.createElement("span")
-  span.innerText = `📅 ${e.name} ${e.time ? "- " + e.time : ""}`
+  span.textContent = "📅 " + e.name + (e.time ? " - " + e.time : "")
 
   let btn = document.createElement("span")
-  btn.innerText = "✖"
+  btn.textContent = "✖"
   btn.style.cursor = "pointer"
-  btn.onclick = () => deleteEvent(e.id)
+  btn.onclick = function(){ deleteEvent(e.id) }
 
   el.appendChild(span)
   el.appendChild(btn)
-
   div.appendChild(el)
-
 })
-  
+
 /* TREINAMENTOS */
 
-let treinosDia = trainings.filter(t => toStringDate(toDateLocal(t.date)) === dateString)
+let treinosDia = trainings.filter(function(t){ return toStringDate(toDateLocal(t.date)) === dateString })
 
-treinosDia.forEach(t => {
-
+treinosDia.forEach(function(t){
   let el = document.createElement("div")
   el.className = "task c4" + (t.done ? " done" : "")
 
   let span = document.createElement("span")
-  span.innerText = `${t.done ? "✔ " : ""}🎓 ${t.name} ${t.time ? "- " + t.time : ""}`
+  span.textContent = (t.done ? "✔ " : "") + "🎓 " + t.name + (t.time ? " - " + t.time : "")
 
   let buttons = document.createElement("div")
   buttons.className = "taskButtons"
 
   let btnDone = document.createElement("button")
-  btnDone.innerText = "✔"
-  btnDone.onclick = () => toggleTrainingDone(t.id)
+  btnDone.textContent = "✔"
+  btnDone.onclick = function(){ toggleTrainingDone(t.id) }
 
   let btnDel = document.createElement("button")
-  btnDel.innerText = "✖"
-  btnDel.onclick = () => deleteTraining(t.id)
+  btnDel.textContent = "✖"
+  btnDel.onclick = function(){ deleteTraining(t.id) }
 
   buttons.appendChild(btnDone)
   buttons.appendChild(btnDel)
 
   el.appendChild(span)
   el.appendChild(buttons)
-
   div.appendChild(el)
-
 })
-  
+
 /* TAREFAS */
 
 let area=document.createElement("div")
 area.className="tasks"
 
-dayTasks.forEach(t=>{
+dayTasks.forEach(function(t){
 let el=document.createElement("div")
 el.className="task "+t.color+(t.done?" done":"")
 
 el.draggable=true
-el.ondragstart=e=>e.dataTransfer.setData("id",t.id)
+el.ondragstart=function(ev){ev.dataTransfer.setData("id",t.id)}
 
 let span = document.createElement("span")
-span.innerText = (t.done ? "✔ " : "") + t.text
+span.textContent = (t.done ? "✔ " : "") + t.text
 
 let buttons = document.createElement("div")
 buttons.className = "taskButtons"
 
 let btnDone = document.createElement("button")
-btnDone.innerText = "✔"
-btnDone.onclick = () => toggleDone(t.id)
+btnDone.textContent = "✔"
+btnDone.onclick = function(){ toggleDone(t.id) }
 
 let btnDelete = document.createElement("button")
-btnDelete.innerText = "🗑"
-btnDelete.onclick = () => deleteTask(t.id)
+btnDelete.textContent = "🗑"
+btnDelete.onclick = function(){ deleteTask(t.id) }
 
 buttons.appendChild(btnDone)
 buttons.appendChild(btnDelete)
@@ -795,7 +1051,7 @@ renderEscalaGlobal()
 
 }
 
-/* FUNÇÕES */
+/* FUNCOES */
 
 function addBirthday(){
 
@@ -805,33 +1061,24 @@ container.className = "popupSelect"
 let box = document.createElement("div")
 box.className = "popupBox"
 
-box.innerHTML = "<h3>Escolha a colaboradora</h3>"
+let title = document.createElement("h3")
+title.textContent = "Escolha a colaboradora"
+box.appendChild(title)
 
-equipe.forEach(p => {
+equipe.forEach(function(p){
   let btn = document.createElement("button")
-  btn.innerText = p.nome
+  btn.textContent = p.nome
 
-  btn.onclick = () => {
-
+  btn.onclick = function(){
     document.body.removeChild(container)
-
     let data = prompt("Digite a data (DD/MM)")
-
     if(!data) return
-
     db.collection("birthdays").add({
       nome: p.nome,
       data: data
     })
-
-    .then(() => {
-      alert("Aniversário salvo 🎂")
-    })
-
-    .catch((error) => {
-      console.error("Erro:", error)
-    })
-
+    .then(function(){ alert("Aniversário salvo 🎂") })
+    .catch(function(error){ console.error("Erro:", error) })
   }
 
   box.appendChild(btn)
@@ -855,16 +1102,12 @@ db.collection("tasks").add({
   color: "c"+(Math.random()*6|0+1),
   done: false
 })
-.then(() => {
-  alert("Tarefa salva online 🚀")
-})
-.catch((error) => {
-  console.error("Erro:", error)
-})
+.then(function(){ alert("Tarefa salva online 🚀") })
+.catch(function(error){ console.error("Erro:", error) })
 
 }
 
-  function saveTask(){
+function saveTask(){
 
 let text = document.getElementById("taskText").value
 let start = document.getElementById("taskStart").value
@@ -873,30 +1116,24 @@ let end = document.getElementById("taskEnd").value
 if(!text || !start || !end) return
 
 if(start === end){
-
   db.collection("tasks").add({
     text: text,
     day: start,
     color: "c"+(Math.random()*6|0+1),
     done: false
   })
-
 }else{
-
   let current = new Date(start)
-  let final = new Date(end)
+  let final2 = new Date(end)
 
-  while(current <= final){
-
-    let day = current.toISOString().split("T")[0]
-
+  while(current <= final2){
+    let dayStr = current.toISOString().split("T")[0]
     db.collection("tasks").add({
       text: text,
-      day: day,
+      day: dayStr,
       color: "c"+(Math.random()*6|0+1),
       done: false
     })
-
     current.setDate(current.getDate()+1)
   }
 }
@@ -914,13 +1151,8 @@ let time = document.getElementById("eventTime").value
 
 if(!name || !date) return
 
-db.collection("events").add({
-  name,
-  brand,
-  date,
-  time
-})
-.then(()=>{
+db.collection("events").add({ name: name, brand: brand, date: date, time: time })
+.then(function(){
   alert("Evento salvo 📅")
   closeEventPopup()
 })
@@ -936,44 +1168,28 @@ let participants = document.getElementById("trainingParticipants").value
 
 if(!name || !date) return
 
-db.collection("trainings").add({
-  name,
-  brand,
-  date,
-  time,
-  participants
-})
-.then(()=>{
+db.collection("trainings").add({ name: name, brand: brand, date: date, time: time, participants: participants })
+.then(function(){
   alert("Treinamento salvo 🎓")
   closeTrainingPopup()
 })
 }
-  
+
 function toggleDone(id){
-
-db.collection("tasks").doc(String(id)).get().then(doc => {
-
+db.collection("tasks").doc(String(id)).get().then(function(doc){
   if(doc.exists){
-    let current = doc.data().done
-
-    db.collection("tasks").doc(String(id)).update({
-      done: !current
-    })
+    var current = doc.data().done
+    db.collection("tasks").doc(String(id)).update({ done: !current })
   }
-
 })
-
 }
-
 
 function deleteTask(id){
-
 if(!confirm("Deseja excluir essa tarefa?")) return
-
 db.collection("tasks").doc(String(id)).delete()
-
 }
-function moveTask(id,day){let t=tasks.find(x=>x.id==id);t.day=day;localStorage.setItem("tasks",JSON.stringify(tasks));render()}
+
+function moveTask(id,day){var t=tasks.find(function(x){return x.id==id});t.day=day;localStorage.setItem("tasks",JSON.stringify(tasks));render()}
 
 function addPessoa(dateString, turno){
 
@@ -983,57 +1199,52 @@ container.className = "popupSelect"
 let box = document.createElement("div")
 box.className = "popupBox"
 
-box.innerHTML = "<h3>Selecione as colaboradoras</h3>"
+let title = document.createElement("h3")
+title.textContent = "Selecione as colaboradoras"
+box.appendChild(title)
 
 let selecionadas = []
 
-equipe.forEach(p => {
-
+equipe.forEach(function(p){
   let label = document.createElement("label")
-  label.style.display = "flex"
-  label.style.alignItems = "center"
-  label.style.gap = "8px"
 
   let checkbox = document.createElement("input")
   checkbox.type = "checkbox"
 
-  checkbox.onchange = () => {
+  checkbox.onchange = function(){
     if(checkbox.checked){
       selecionadas.push(p.nome)
     }else{
-      selecionadas = selecionadas.filter(n => n !== p.nome)
+      selecionadas = selecionadas.filter(function(n){return n !== p.nome})
     }
   }
 
   let span = document.createElement("span")
-  span.innerText = p.nome
+  span.textContent = p.nome
 
   label.appendChild(checkbox)
   label.appendChild(span)
-
   box.appendChild(label)
-
 })
 
 let btnSalvar = document.createElement("button")
-btnSalvar.innerText = "Salvar"
+btnSalvar.textContent = "Salvar"
 
-btnSalvar.onclick = () => {
-
+btnSalvar.onclick = function(){
   if(selecionadas.length === 0){
     alert("Selecione pelo menos uma pessoa")
     return
   }
 
-  let jaExistem = escala.filter(e => e.date === dateString && e.turno === turno).map(e => e.nome)
-  let novas = selecionadas.filter(nome => !jaExistem.includes(nome))
-  let duplicadas = selecionadas.filter(nome => jaExistem.includes(nome))
+  let jaExistem = escala.filter(function(e){return e.date === dateString && e.turno === turno}).map(function(e){return e.nome})
+  let novas = selecionadas.filter(function(nome){return !jaExistem.includes(nome)})
+  let duplicadas = selecionadas.filter(function(nome){return jaExistem.includes(nome)})
 
   if(duplicadas.length > 0){
     alert("Já na escala: " + duplicadas.join(", "))
   }
 
-  novas.forEach(nome => {
+  novas.forEach(function(nome){
     db.collection("escala").add({
       date: dateString,
       turno: turno,
@@ -1045,10 +1256,11 @@ btnSalvar.onclick = () => {
 }
 
 let btnCancelar = document.createElement("button")
-btnCancelar.innerText = "Cancelar"
-btnCancelar.style.background = "#ccc"
-btnCancelar.style.color = "#333"
-btnCancelar.onclick = () => document.body.removeChild(container)
+btnCancelar.textContent = "Cancelar"
+btnCancelar.style.background = "var(--cream)"
+btnCancelar.style.color = "var(--text-muted)"
+btnCancelar.style.border = "1px solid var(--border)"
+btnCancelar.onclick = function(){ document.body.removeChild(container) }
 
 box.appendChild(btnSalvar)
 box.appendChild(btnCancelar)
@@ -1057,25 +1269,25 @@ container.appendChild(box)
 document.body.appendChild(container)
 
 }
-  
-  function renderEscala(dateString){
 
-["abertura","intermediario","fechamento"].forEach(turno => {
+function renderEscala(dateString){
 
-let container = document.getElementById(`${turno}-${dateString}`)
+["abertura","intermediario","fechamento"].forEach(function(turno){
+
+let container = document.getElementById(turno+"-"+dateString)
 if(!container) return
 
-container.innerHTML = ""
+container.textContent = ""
 
 escala
-  .filter(e => e.date === dateString && e.turno === turno && e.nome)
-  .forEach(e => {
+  .filter(function(e){return e.date === dateString && e.turno === turno && e.nome})
+  .forEach(function(e){
 
  let el = document.createElement("div")
 
-let pessoa = equipe.find(p =>
-  p.nome.trim().toLowerCase() === e.nome.trim().toLowerCase()
-)
+let pessoa = equipe.find(function(p){
+  return p.nome.trim().toLowerCase() === e.nome.trim().toLowerCase()
+})
 
 let funcaoClasse = "op"
 
@@ -1092,12 +1304,12 @@ let corTexto=getContrastColor(corFundo)
 el.style.color=corTexto
 
 let spanNome = document.createElement("span")
-spanNome.innerText = "👤 " + e.nome
+spanNome.textContent = "👤 " + e.nome
 
 let btn = document.createElement("span")
-btn.innerText = "✖"
+btn.textContent = "✖"
 btn.style.cursor = "pointer"
-btn.onclick = () => deletePessoa(e.id)
+btn.onclick = function(){ deletePessoa(e.id) }
 
 el.appendChild(spanNome)
 el.appendChild(btn)
@@ -1105,27 +1317,23 @@ el.appendChild(btn)
 container.appendChild(el)
 
     })
-    
+
   })
 
 }
 
 function renderEscalaGlobal(){
 
-let start=new Date(currentDate)
-let day=start.getDay()
-let diff=start.getDate()-day+(day===0?-6:1)
-start.setDate(diff)
+let start2=new Date(currentDate)
+let day2=start2.getDay()
+let diff2=start2.getDate()-day2+(day2===0?-6:1)
+start2.setDate(diff2)
 
-days.forEach((d,i)=>{
-
-let dayDate=new Date(start)
-dayDate.setDate(start.getDate()+i)
-
+days.forEach(function(d,i){
+let dayDate=new Date(start2)
+dayDate.setDate(start2.getDate()+i)
 let dateString = toStringDate(dayDate)
-
 renderEscala(dateString)
-
 })
 
 }
@@ -1146,7 +1354,7 @@ db.collection("trainings").doc(id).delete()
 }
 
 function toggleTrainingDone(id){
-db.collection("trainings").doc(String(id)).get().then(doc => {
+db.collection("trainings").doc(String(id)).get().then(function(doc){
   if(doc.exists){
     db.collection("trainings").doc(String(id)).update({
       done: !doc.data().done
@@ -1154,7 +1362,7 @@ db.collection("trainings").doc(String(id)).get().then(doc => {
   }
 })
 }
-  
+
 function addVacation(){
 
 let n = prompt("Nome")
@@ -1174,17 +1382,11 @@ db.collection("vacations").add({
   end: convert(e),
   color: vacationColors[Math.random()*5|0]
 })
-
-.then(() => {
-  alert("Férias salva online ✈️")
-})
-
-.catch((error) => {
-  console.error("Erro:", error)
-})
+.then(function(){ alert("Férias salva online ✈️") })
+.catch(function(error){ console.error("Erro:", error) })
 
 }
-  
+
 function openTaskPopup(){
   document.getElementById("taskPopup").style.display = "flex"
 }
@@ -1217,9 +1419,9 @@ function closeTrainingPopup(){
   document.getElementById("trainingTime").value = ""
   document.getElementById("trainingParticipants").value = ""
 }
-  
+
 function exportWhats(){
-html2canvas(document.querySelector(".calendar")).then(c=>{
+html2canvas(document.querySelector(".calendar")).then(function(c){
 let a=document.createElement("a")
 a.download="agenda.png"
 a.href=c.toDataURL()
@@ -1231,10 +1433,10 @@ function prevWeek(){currentDate.setDate(currentDate.getDate()-7);render()}
 function nextWeek(){currentDate.setDate(currentDate.getDate()+7);render()}
 function goToday(){currentDate=new Date();render()}
 function goToDate(){let d=document.getElementById("gotoDate").value;if(d){currentDate=new Date(d);render()}}
+
 function editVacation(id){
 
-let v = vacations.find(x => String(x.id) === String(id))
-
+let v = vacations.find(function(x){return String(x.id) === String(id)})
 if(!v) return
 
 let name = prompt("Nome", v.name)
@@ -1259,96 +1461,68 @@ function deleteVacation(id){
 
 if(!confirm("Deseja excluir essa férias?")) return
 
-vacations = vacations.filter(v => String(v.id) !== String(id))
-
+vacations = vacations.filter(function(v){return String(v.id) !== String(id)})
 localStorage.setItem("vacations", JSON.stringify(vacations))
 render()
 
 }
-  
+
 function deleteBirthday(id){
-
 if(!confirm("Deseja excluir esse aniversário?")) return
-
 db.collection("birthdays").doc(id).delete()
-
 }
+
 function formatBR(date){
-
 let d = new Date(date)
-
 let day = String(d.getDate()).padStart(2,'0')
 let month = String(d.getMonth()+1).padStart(2,'0')
 let year = d.getFullYear()
-
 return day+"/"+month+"/"+year
-
 }
 
 </script>
 
-  <div id="taskPopup" class="popup">
+<div id="taskPopup" class="popup">
   <div class="popupContent">
-
     <h3>Nova Tarefa</h3>
-
     <input id="taskText" placeholder="Nome da tarefa">
-
     <label>Data início</label>
     <input type="date" id="taskStart">
-
     <label>Data fim</label>
     <input type="date" id="taskEnd">
-
     <button onclick="saveTask()">Salvar</button>
     <button onclick="closeTaskPopup()">Cancelar</button>
-
   </div>
 </div>
 
-<!-- 🔽 COLE AQUI EMBAIXO -->
-
 <div id="eventPopup" class="popup">
   <div class="popupContent">
-
     <h3>Novo Evento</h3>
-
     <input id="eventName" placeholder="Nome do evento">
     <input id="eventBrand" placeholder="Marca">
-
     <label>Data</label>
     <input type="date" id="eventDate">
-
     <label>Horário</label>
     <input type="time" id="eventTime">
-
     <button onclick="saveEvent()">Salvar</button>
     <button onclick="closeEventPopup()">Cancelar</button>
-
   </div>
 </div>
 
 <div id="trainingPopup" class="popup">
   <div class="popupContent">
-
     <h3>Novo Treinamento</h3>
-
     <input id="trainingName" placeholder="Treinamento">
     <input id="trainingBrand" placeholder="Marca">
-
     <label>Data</label>
     <input type="date" id="trainingDate">
-
     <label>Horário</label>
     <input type="time" id="trainingTime">
-
     <input id="trainingParticipants" placeholder="Participantes">
-
     <button onclick="saveTraining()">Salvar</button>
     <button onclick="closeTrainingPopup()">Cancelar</button>
-
   </div>
 </div>
-  
+
 </body>
 </html>
