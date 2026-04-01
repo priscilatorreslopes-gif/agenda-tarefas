@@ -668,6 +668,11 @@ const coresFuncao={op:"#9f156b",ass:"#53b5ad",lid:"#5d1e6f"}
 
 // MOTOR DE DATAS
 
+function convertBRtoISO(d){
+let p = d.split("/")
+return p[2]+"-"+p[1]+"-"+p[0]
+}
+
 function toDateLocal(dateString){
 let [y,m,d] = dateString.split("-")
 return new Date(Number(y), Number(m)-1, Number(d))
@@ -712,6 +717,15 @@ const equipe=[
 let tasks = []
 let events = []
 let trainings = []
+let escala = []
+let vacations = []
+let birthdays = []
+
+var renderTimer = null
+function scheduleRender(){
+  if(renderTimer) clearTimeout(renderTimer)
+  renderTimer = setTimeout(render, 50)
+}
 
 db.collection("tasks").onSnapshot(function(snapshot) {
   tasks = []
@@ -719,10 +733,8 @@ db.collection("tasks").onSnapshot(function(snapshot) {
     var data = doc.data()
     tasks.push({ id: doc.id, text: data.text, day: data.day, color: data.color, done: data.done })
   })
-  render()
+  scheduleRender()
 })
-
-let escala = []
 
 db.collection("escala").onSnapshot(function(snapshot) {
   escala = []
@@ -730,10 +742,8 @@ db.collection("escala").onSnapshot(function(snapshot) {
     var data = doc.data()
     escala.push({ id: doc.id, date: data.date, turno: data.turno, nome: data.nome })
   })
-  render()
+  scheduleRender()
 })
-
-let vacations = []
 
 db.collection("vacations").onSnapshot(function(snapshot) {
   vacations = []
@@ -741,10 +751,8 @@ db.collection("vacations").onSnapshot(function(snapshot) {
     var data = doc.data()
     vacations.push({ id: doc.id, name: data.name, start: data.start, end: data.end, color: data.color })
   })
-  render()
+  scheduleRender()
 })
-
-let birthdays = []
 
 db.collection("birthdays").onSnapshot(function(snapshot) {
   birthdays = []
@@ -752,7 +760,7 @@ db.collection("birthdays").onSnapshot(function(snapshot) {
     var data = doc.data()
     birthdays.push({ id: doc.id, nome: data.nome, data: data.data })
   })
-  render()
+  scheduleRender()
 })
 
 db.collection("events").onSnapshot(function(snapshot) {
@@ -761,7 +769,7 @@ db.collection("events").onSnapshot(function(snapshot) {
     var data = doc.data()
     events.push({ id: doc.id, name: data.name, brand: data.brand, date: data.date, time: data.time })
   })
-  render()
+  scheduleRender()
 })
 
 db.collection("trainings").onSnapshot(function(snapshot) {
@@ -770,7 +778,7 @@ db.collection("trainings").onSnapshot(function(snapshot) {
     var data = doc.data()
     trainings.push({ id: doc.id, name: data.name, brand: data.brand, date: data.date, time: data.time, participants: data.participants, done: data.done })
   })
-  render()
+  scheduleRender()
 })
 
 var vacationColors=["#f1c40f","#2ecc71","#3498db","#9b59b6","#e67e22"]
@@ -1089,24 +1097,6 @@ document.body.appendChild(container)
 
 }
 
-function addTask(){
-
-let d = document.getElementById("taskDate").value
-let t = prompt("Tarefa")
-
-if(!d || !t) return
-
-db.collection("tasks").add({
-  text: t,
-  day: d,
-  color: "c"+(Math.random()*6|0+1),
-  done: false
-})
-.then(function(){ alert("Tarefa salva online 🚀") })
-.catch(function(error){ console.error("Erro:", error) })
-
-}
-
 function saveTask(){
 
 let text = document.getElementById("taskText").value
@@ -1119,7 +1109,7 @@ if(start === end){
   db.collection("tasks").add({
     text: text,
     day: start,
-    color: "c"+(Math.random()*6|0+1),
+    color: "c"+(Math.floor(Math.random()*6)+1),
     done: false
   })
 }else{
@@ -1127,11 +1117,11 @@ if(start === end){
   let final2 = new Date(end)
 
   while(current <= final2){
-    let dayStr = current.toISOString().split("T")[0]
+    let dayStr = toStringDate(current)
     db.collection("tasks").add({
       text: text,
       day: dayStr,
-      color: "c"+(Math.random()*6|0+1),
+      color: "c"+(Math.floor(Math.random()*6)+1),
       done: false
     })
     current.setDate(current.getDate()+1)
@@ -1176,12 +1166,8 @@ db.collection("trainings").add({ name: name, brand: brand, date: date, time: tim
 }
 
 function toggleDone(id){
-db.collection("tasks").doc(String(id)).get().then(function(doc){
-  if(doc.exists){
-    var current = doc.data().done
-    db.collection("tasks").doc(String(id)).update({ done: !current })
-  }
-})
+var t = tasks.find(function(x){ return x.id === id })
+if(t) db.collection("tasks").doc(id).update({ done: !t.done })
 }
 
 function deleteTask(id){
@@ -1189,7 +1175,7 @@ if(!confirm("Deseja excluir essa tarefa?")) return
 db.collection("tasks").doc(String(id)).delete()
 }
 
-function moveTask(id,day){var t=tasks.find(function(x){return x.id==id});t.day=day;localStorage.setItem("tasks",JSON.stringify(tasks));render()}
+function moveTask(id,day){db.collection("tasks").doc(String(id)).update({day:day})}
 
 function addPessoa(dateString, turno){
 
@@ -1354,13 +1340,8 @@ db.collection("trainings").doc(id).delete()
 }
 
 function toggleTrainingDone(id){
-db.collection("trainings").doc(String(id)).get().then(function(doc){
-  if(doc.exists){
-    db.collection("trainings").doc(String(id)).update({
-      done: !doc.data().done
-    })
-  }
-})
+var t = trainings.find(function(x){ return x.id === id })
+if(t) db.collection("trainings").doc(id).update({ done: !t.done })
 }
 
 function addVacation(){
@@ -1371,16 +1352,11 @@ let e = prompt("DD/MM/AAAA")
 
 if(!n || !s || !e) return
 
-function convert(d){
-  let p = d.split("/")
-  return p[2]+"-"+p[1]+"-"+p[0]
-}
-
 db.collection("vacations").add({
   name: n,
-  start: convert(s),
-  end: convert(e),
-  color: vacationColors[Math.random()*5|0]
+  start: convertBRtoISO(s),
+  end: convertBRtoISO(e),
+  color: vacationColors[Math.floor(Math.random()*5)]
 })
 .then(function(){ alert("Férias salva online ✈️") })
 .catch(function(error){ console.error("Erro:", error) })
@@ -1443,28 +1419,19 @@ let name = prompt("Nome", v.name)
 let start = prompt("Início (DD/MM/AAAA)", formatBR(v.start))
 let end = prompt("Fim (DD/MM/AAAA)", formatBR(v.end))
 
-function convert(dateBR){
-let p = dateBR.split("/")
-return p[2]+"-"+p[1]+"-"+p[0]
-}
+if(!name || !start || !end) return
 
-v.name = name
-v.start = convert(start)
-v.end = convert(end)
-
-localStorage.setItem("vacations", JSON.stringify(vacations))
-render()
+db.collection("vacations").doc(id).update({
+  name: name,
+  start: convertBRtoISO(start),
+  end: convertBRtoISO(end)
+})
 
 }
 
 function deleteVacation(id){
-
 if(!confirm("Deseja excluir essa férias?")) return
-
-vacations = vacations.filter(function(v){return String(v.id) !== String(id)})
-localStorage.setItem("vacations", JSON.stringify(vacations))
-render()
-
+db.collection("vacations").doc(id).delete()
 }
 
 function deleteBirthday(id){
