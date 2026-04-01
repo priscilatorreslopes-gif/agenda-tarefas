@@ -1026,13 +1026,13 @@ if(!container) return
 container.innerHTML = ""
 
 escala
-  .filter(e => e.date === dateString && e.turno === turno && e.name)
+  .filter(e => e.date === dateString && e.turno === turno && e.nome)
   .forEach(e => {
 
  let el = document.createElement("div")
 
-let pessoa = equipe.find(p => 
-  p.name.trim().toLowerCase() === e.name.trim().toLowerCase()
+let pessoa = equipe.find(p =>
+  p.nome.trim().toLowerCase() === e.nome.trim().toLowerCase()
 )
 
 let funcaoClasse = "op"
