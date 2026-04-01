@@ -704,7 +704,16 @@ eventosDia.forEach(e => {
   let el = document.createElement("div")
   el.className = "task c3"
 
-  el.innerText = `📅 ${e.name} ${e.time ? "- " + e.time : ""}`
+  let span = document.createElement("span")
+  span.innerText = `📅 ${e.name} ${e.time ? "- " + e.time : ""}`
+
+  let btn = document.createElement("span")
+  btn.innerText = "✖"
+  btn.style.cursor = "pointer"
+  btn.onclick = () => deleteEvent(e.id)
+
+  el.appendChild(span)
+  el.appendChild(btn)
 
   div.appendChild(el)
 
@@ -717,9 +726,27 @@ let treinosDia = trainings.filter(t => toStringDate(toDateLocal(t.date)) === dat
 treinosDia.forEach(t => {
 
   let el = document.createElement("div")
-  el.className = "task c4"
+  el.className = "task c4" + (t.done ? " done" : "")
 
-  el.innerText = `🎓 ${t.name} ${t.time ? "- " + t.time : ""}`
+  let span = document.createElement("span")
+  span.innerText = `${t.done ? "✔ " : ""}🎓 ${t.name} ${t.time ? "- " + t.time : ""}`
+
+  let buttons = document.createElement("div")
+  buttons.className = "taskButtons"
+
+  let btnDone = document.createElement("button")
+  btnDone.innerText = "✔"
+  btnDone.onclick = () => toggleTrainingDone(t.id)
+
+  let btnDel = document.createElement("button")
+  btnDel.innerText = "✖"
+  btnDel.onclick = () => deleteTraining(t.id)
+
+  buttons.appendChild(btnDone)
+  buttons.appendChild(btnDel)
+
+  el.appendChild(span)
+  el.appendChild(buttons)
 
   div.appendChild(el)
 
@@ -998,7 +1025,15 @@ btnSalvar.onclick = () => {
     return
   }
 
-  selecionadas.forEach(nome => {
+  let jaExistem = escala.filter(e => e.date === dateString && e.turno === turno).map(e => e.nome)
+  let novas = selecionadas.filter(nome => !jaExistem.includes(nome))
+  let duplicadas = selecionadas.filter(nome => jaExistem.includes(nome))
+
+  if(duplicadas.length > 0){
+    alert("Já na escala: " + duplicadas.join(", "))
+  }
+
+  novas.forEach(nome => {
     db.collection("escala").add({
       date: dateString,
       turno: turno,
@@ -1009,7 +1044,14 @@ btnSalvar.onclick = () => {
   document.body.removeChild(container)
 }
 
+let btnCancelar = document.createElement("button")
+btnCancelar.innerText = "Cancelar"
+btnCancelar.style.background = "#ccc"
+btnCancelar.style.color = "#333"
+btnCancelar.onclick = () => document.body.removeChild(container)
+
 box.appendChild(btnSalvar)
+box.appendChild(btnCancelar)
 
 container.appendChild(box)
 document.body.appendChild(container)
@@ -1088,10 +1130,29 @@ renderEscala(dateString)
 
 }
 
-function deletePessoa(id){  
-if(!confirm("Deseja remover essa pessoa da escala?")) return  
+function deletePessoa(id){
+if(!confirm("Deseja remover essa pessoa da escala?")) return
+db.collection("escala").doc(id).delete()
+}
 
-db.collection("escala").doc(id).delete()  
+function deleteEvent(id){
+if(!confirm("Deseja excluir esse evento?")) return
+db.collection("events").doc(id).delete()
+}
+
+function deleteTraining(id){
+if(!confirm("Deseja excluir esse treinamento?")) return
+db.collection("trainings").doc(id).delete()
+}
+
+function toggleTrainingDone(id){
+db.collection("trainings").doc(String(id)).get().then(doc => {
+  if(doc.exists){
+    db.collection("trainings").doc(String(id)).update({
+      done: !doc.data().done
+    })
+  }
+})
 }
   
 function addVacation(){
@@ -1138,6 +1199,10 @@ function openEventPopup(){
 
 function closeEventPopup(){
   document.getElementById("eventPopup").style.display = "none"
+  document.getElementById("eventName").value = ""
+  document.getElementById("eventBrand").value = ""
+  document.getElementById("eventDate").value = ""
+  document.getElementById("eventTime").value = ""
 }
 
 function openTrainingPopup(){
@@ -1146,6 +1211,11 @@ function openTrainingPopup(){
 
 function closeTrainingPopup(){
   document.getElementById("trainingPopup").style.display = "none"
+  document.getElementById("trainingName").value = ""
+  document.getElementById("trainingBrand").value = ""
+  document.getElementById("trainingDate").value = ""
+  document.getElementById("trainingTime").value = ""
+  document.getElementById("trainingParticipants").value = ""
 }
   
 function exportWhats(){
